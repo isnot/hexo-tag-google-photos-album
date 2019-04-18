@@ -28,6 +28,10 @@
     "hexo-fs": "^0.2.2",
     "hexo-log": "^0.2.0",
     "hexo-util": "^0.6.3",
-    "metascraper": "^5.1.1"
+    "metascraper": "^5.1.1",
+    "metascraper-description": "^5.1.0",
+    "metascraper-image": "^5.1.0",
+    "metascraper-title": "^5.1.0",
+    "metascraper-url": "^5.1.0"
   }
 }
