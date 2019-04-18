@@ -1,0 +1,33 @@
+{
+  "name": "hexo-tag-google-photos-album",
+  "version": "1.0.1",
+  "description": "This plugin will generate a photos album for hexo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isnot/hexo-tag-google-photos-album.git"
+  },
+  "keywords": [
+    "hexo",
+    "plugin"
+  ],
+  "author": {
+    "name": "isnot"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/isnot/hexo-tag-google-photos-album/issues"
+  },
+  "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
+  "dependencies": {
+    "escape-html": "^1.0.3",
+    "got": "^9.6.0",
+    "hexo-fs": "^0.2.2",
+    "hexo-log": "^0.2.0",
+    "hexo-util": "^0.6.3",
+    "metascraper": "^5.1.1"
+  }
+}
