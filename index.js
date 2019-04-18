@@ -52,13 +52,13 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 async function getTagHtml(options) {
   const { body: html, url } = await got(options.url);
   const og = await metascraper({ html, url });
-  console.log(og);
+  console.log('google-photos-album:', og);
   if (typeof og !== 'object' || og === null) {
     throw new Error('I can not get metadata.');
   }
 
   const image_urls = await getImageUrls(html);
-  console.log(image_urls);
+  console.log('google-photos-album:', image_urls);
   if (!Array.isArray(image_urls) || image_urls.length < 1) {
     throw new Error('I can not get images from album.');
   }
@@ -67,8 +67,8 @@ async function getTagHtml(options) {
   let metadatas = '';
 
   if (hasProperty(og, 'image')) {
-    head_image = util.htmlTag('img', { src: og.image }, '');
-    head_image = util.htmlTag('div', { class: 'metadatas og-image'}, head_image);
+    head_image = util.htmlTag('img', { src: og.image, class: 'og-image nolink' }, '');
+    head_image = util.htmlTag('div', { class: 'metadatas'}, head_image);
   }
 
   metadatas += util.htmlTag('span', { class: 'og-title' }, escapeHTML(og.title));
@@ -82,7 +82,9 @@ async function getTagHtml(options) {
 
   metadatas = util.htmlTag('div', { class: 'metadatas' }, alink);
 
-  const tag = util.htmlTag('div', { class: className },  head_image + metadatas);
+  const images_html = getImgHtml(image_urls);
+  const script_data = '\n<script>const googlePhotosAlbum_images = ' + JSON.stringify(image_urls) + ';</script>\n';
+  const tag = util.htmlTag('div', { class: className },  head_image + metadatas + images_html + script_data);
   return tag;
 }
 
@@ -90,8 +92,19 @@ function getImageUrls(html) {
   if (typeof html !== 'string' || html === '') {
     return [];
   }
+  const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w\-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
+  let matched = [];
+  let myArray;
+  while ((myArray = regex.exec(html)) !== null) {
+    matched.push(myArray[1]);
+  }
+  return matched;
+}
 
-  return ['test_image'];
+function getImgHtml(images) {
+  return '<div class="google-photos-album-images">' + images.map(url => {
+    return '<a href="' + url + '=s2000-no" class="gallery-item" target="_blank" rel="noopener"><img src="' + url + '=h170-no"></a>';
+  }).join('\n') + '</div>';
 }
 
 function hasProperty(obj, prop) {
