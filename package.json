@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
   "dependencies": {
-    "escape-html": "^1.0.3",
     "got": "^9.6.0",
     "hexo-fs": "^0.2.2",
     "hexo-log": "^0.2.0",

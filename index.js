@@ -1,7 +1,7 @@
 /**
 * hexo-tag-google-photos-album
 * https://github.com/isnot/hexo-tag-google-photos-album.git
-* Copyright (c) 2019, isnot
+* Copyright (c) 2019 isnot
 * Licensed under the MIT license.
 * Syntax:
 * {% googlePhotosAlbum url maxPics %}
@@ -15,31 +15,40 @@
 //   silent: false
 // });
 const util = require('hexo-util');
-const escapeHTML = require('escape-html');
+const got = require('got');
 const metascraper = require('metascraper')([
   require('metascraper-description')(),
   require('metascraper-image')(),
   require('metascraper-title')(),
   require('metascraper-url')()
 ]);
-const got = require('got');
 
-const descriptionLength = (hexo.config.googlePhotosAlbum && hexo.config.googlePhotosAlbum.descriptionLength)
-      ? hexo.config.googlePhotosAlbum.descriptionLength : 140;
-const className = (hexo.config.googlePhotosAlbum && hexo.config.googlePhotosAlbum.className)
-      ? hexo.config.googlePhotosAlbum.className : 'google-photos-album-area';
+const factory_defaults = {
+  descriptionLength: 140,
+  maxPics: 99,
+  target: '_blank',
+  rel: 'noopener',
+  className: 'google-photos-album-area',
+  enableFactoryStyle: true,
+  generateAlways: false,
+  large_param: '=s2000-no',
+  middle_param: '=s800-no',
+  small_param: '=h170-no',
+  url: ''
+};
 
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (!args) { return; }
-  if (typeof hexo.config.googlePhotosAlbum !== 'object') {
-    throw new Error('need googlePhotosAlbum in _config.yml');
-    return;
+  let local_settings = factory_defaults;
+  if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
+    local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
   }
-  if (!hexo.config.googlePhotosAlbum.generateAlways && isDev()) { return; }
+  local_settings = Object.assign(local_settings, {url: args[0], maxPics: args[1]});
+  local_settings.large_param_regexp = util.escapeRegex(local_settings.large_param);
 
-  return getTagHtml(
-    Object.assign(hexo.config.googlePhotosAlbum, {url: args[0], maxPics: args[1]})
-  ).then(tag => {
+  if (!local_settings.generateAlways && isDev()) { return; }
+
+  return getTagHtml(local_settings).then(tag => {
     return tag;
   }).catch(err => {
     console.log('Something went wrong! ', err);
@@ -57,53 +66,57 @@ async function getTagHtml(options) {
     throw new Error('I can not get metadata.');
   }
 
-  const image_urls = await getImageUrls(html);
+  const image_urls = await getImageUrls(html, options.maxPics);
   console.log('google-photos-album:', image_urls);
   if (!Array.isArray(image_urls) || image_urls.length < 1) {
     throw new Error('I can not get images from album.');
   }
 
   let head_image = '';
-  let metadatas = '';
+  let props = '';
 
   if (hasProperty(og, 'image')) {
     head_image = util.htmlTag('img', { src: og.image, class: 'og-image nolink' }, '');
-    head_image = util.htmlTag('div', { class: 'metadatas'}, head_image);
   }
 
-  metadatas += util.htmlTag('span', { class: 'og-title' }, escapeHTML(og.title));
+  if (hasProperty(og, 'title')) {
+    props += util.htmlTag('span', { class: 'og-title' }, util.escapeHTML(og.title));
+  }
 
   if (hasProperty(og, 'description')) {
-    const description = adjustLength(og.description, descriptionLength);
-    metadatas += util.htmlTag('span', { class: 'og-description' }, escapeHTML(description));
+    const description = adjustLength(og.description, options.descriptionLength);
+    props += util.htmlTag('span', { class: 'og-description' }, util.escapeHTML(description));
   }
 
-  const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, metadatas);
-
-  metadatas = util.htmlTag('div', { class: 'metadatas' }, alink);
-
-  const images_html = getImgHtml(image_urls);
-  const script_data = '\n<script>const googlePhotosAlbum_images = ' + JSON.stringify(image_urls) + ';</script>\n';
-  const tag = util.htmlTag('div', { class: className },  head_image + metadatas + images_html + script_data);
-  return tag;
+  const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
+  const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
+  const images_html = getImgHtml(image_urls, options);
+  const contents = util.htmlTag('div', { class: className },  metadatas + images_html);
+  const script_data = `<script>
+const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
+const options = ${JSON.stringify(options)};
+` + getClientSideScript() + '\n</script>\n';
+  return contents + script_data;
 }
 
-function getImageUrls(html) {
+function getImageUrls(html, max) {
   if (typeof html !== 'string' || html === '') {
     return [];
   }
   const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w\-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
   let matched = [];
   let myArray;
-  while ((myArray = regex.exec(html)) !== null) {
-    matched.push(myArray[1]);
+  let count = 0;
+  while ((myArray = regex.exec(html)) !== null && max > count) {
+    matched.push(myArray.slice(1));
+    count++;
   }
   return matched;
 }
 
-function getImgHtml(images) {
-  return '<div class="google-photos-album-images">' + images.map(url => {
-    return '<a href="' + url + '=s2000-no" class="gallery-item" target="_blank" rel="noopener"><img src="' + url + '=h170-no"></a>';
+function getImgHtml(images, options) {
+  return '<div class="google-photos-album-images clearfix">' + images.map(url => {
+    return `<a href="${url}${large_param}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.small_param}"></a>`;
   }).join('\n') + '</div>';
 }
 
@@ -128,26 +141,34 @@ function isDev() {
   }
 }
 
-//////////////////////////
+function getClientSideScript() {
+  return `
+function addLoadEvent(func) {
+  const oldonload = window.onload;
+  if (typeof window.onload != 'function') {
+    window.onload = func;
+  } else {
+    window.onload = function() {
+      oldonload();
+      func();
+    };
+  }
+}
 
-// function addLoadEvent(func) {
-//    const oldonload = window.onload;
-//    if (typeof window.onload != 'function') {
-//        window.onload = func;
-//    } else {
-//        window.onload = function() {
-//            oldonload();
-//            func();
-//        };
-//    }
-// }
-
-// addLoadEvent(function() {
-//    try {
-//    } catch(e) {
-//        console.log(e);
-//    }
-// });
+addLoadEvent(function() {
+  try {
+    if (!Array.isArray(googlePhotosAlbum_images)) { return; }
+    const imgs = document.body.querySelectorAll('.googlePhotosAlbum_images a');
+    const regex = new RegExp(options.large_param_regexp, 'i');
+    for (let anchor of imgs) {
+      anchor.href = anchor.href.replace(regex, middle_param);
+    }
+  } catch(e) {
+    console.log(e);
+  }
+});
+`;
+}
 
 ////////////////////
 // <meta name="og:site_name" content="Google Photos">
@@ -155,26 +176,4 @@ function isDev() {
 // <meta property="og:description" content="8 new photos added to shared album">
 // <meta property="og:url" content="https://photos.google.com/share/AF1QipM-qmCtmxuhoUj5Y2lP7OUWe9FH1KjHqVuDokH9IxM1mj3ayWcbHxNa43NfaBLe2A?key=SUIyM0k0RkQ4OTY4elZmQVBwNDBFOFhJZVZwRTBn">
 // <meta property="og:image" content="https://lh3.googleusercontent.com/UT9ZLJ58COPY1aqWW9LD2HTWVONf9jWsqN4I85RFeUqe0-8Ag63EeGZOGMhJtNBlmPCvNBi_l13OWAFVP5fW-xYDm5WWrtGnODVr027TxPElWdty_waXNYR1uN-9B52_ert8M36YwCg=w600-h315-p-k">
-
-// <div class="google-photos-album-area">
-//   <div class="metadata og-image">
-//     <img src="https://lh3.googleusercontent.com/c9OjlbkVvrK8SccaAdpg9rb5e_zmPhHSp1XOtKXssDOcM3Uh15nzWY5XvZ5iMZXSo58HCjoisq3Q2DiafqzRticVrTlkn6ztCGfJ_chRpvqgqxAL5r4aio4D-tgjYwRUgDPWw3jiBic=w600-h315-p-k">
-//   </div>
-//   <div class="metadata">
-//     <a href="https://photos.app.goo.gl/BPMyX13M24MA7hWx6" class="og-url" target="_blank" rel="noopener">
-//       <span class="og-title">さくら2019</span>
-//       <span class="og-description">8 new photos added to shared album</span>
-//     </a>
-//   </div>
-// </div>
-
-// https://lh3.googleusercontent.com/POAIcyaMNHzc2hslHMj08htML9FtB5inQK6IrkUA1grUGIndo0FXCo_WbLVKXT0xJo_acPXXbiSNHTQ94xfSd8MqbNoNCmfczCBrBD6e_98s-6gqoHITFllFznfhRUHIKW8WZ7hE-Zg
-// https://lh3.googleusercontent.com/GfDV8DCG0qrZIXHDCiJx5-dpDdC1Y4CX6N400lGdQgKSUlf-YeHvb065BHrunvJT92vRBToUDQKkksjARr_wm0D6nd0YlrQL-EEmumLpLxHG0Bsrjw8S-fvRBHfSJib5oXAg0Rt9ECY
-// https://lh3.googleusercontent.com/Dl3Ku3qHe5aUeDlpu4hEwALwyzqcHbd9hbHlsyxYDPtv1dhLuOa20mgOJ4C6juUR47TNAjW9PfXaT-Pk2WThPz8nlunqVAdkjVrE4fWGHrVLHWK7jbdNldcMALJc117s_T8lHjXM-Ro
-// https://lh3.googleusercontent.com/WqSyuXpDnrpuO9jPhHFK1c61jiwuzZ536jyGWHG0drVc6a1x2Z8vwgyD2wkRvkvH496B7AZRESeXTCWfXMgPlZJdqGNwaYGbZxz9_xlDv7PDQk7sgxvzfr-moYcfK9lScOUo1uk1XJA
-// https://lh3.googleusercontent.com/fCM0HR6RiT1-yRE-xkFMlE_Ddak2fGSzLGlC-WUjrRdHYsvYc4nLigjY37JztY8-r6YpzU71t4YJ37dzS2vNSPVg-o2laIzlbZ6LyGPH5gq0-qR-aebWNCK-Z85zkJYLOOavYiib-zw
-// https://lh3.googleusercontent.com/KoaMPRIj3LCdk6DPeYmduXCAPRtXoxuixLVgrt2xd_qaenqWcRwWlQfpF1r9Wdf39cMl6OkBPRAV5QwJMTbd-D1y1jIwKPZlNu4CJ5MQ3m9UBW8Bs47RwOs8mEElWq3ZH-USxA-92g8
-// https://lh3.googleusercontent.com/fM3n0qwHFEvejwNzfVXJo5vAKhQHvf_V6oDXBg9IY4nhFEONgBAWP6J7oN5U7Qt7cpZVMT318pCfizCl3vj2yif8am9yctMuzH1VSkvExOzHuGpwFoLDHABmv0z23q7kbl4_CFt0DVA
-// https://lh3.googleusercontent.com/UT9ZLJ58COPY1aqWW9LD2HTWVONf9jWsqN4I85RFeUqe0-8Ag63EeGZOGMhJtNBlmPCvNBi_l13OWAFVP5fW-xYDm5WWrtGnODVr027TxPElWdty_waXNYR1uN-9B52_ert8M36YwCg
-
 // ["https://lh3.googleusercontent.com/qNXy20DDeW3ClJw9J7UqgtKe6iouW_pemCUONrR2zoDiFHhKqJq5RtLeBSj8zmv6Opjg1oD81E8J_UEQworGABuZhf6aHmPaUaXwCFAJ77rrH285Q-j4LNmmebSguFJb0OsDyiwj8ztb30VEGS1nP79-ueUh4rQ3ZaBwk18tNu6ieQlzqfMu2k0kiQmPdSxBXrdDuAdCrGbXrn7GpJ8B7T06CG2u2F9wEGTSdX3y495SeTtyOnsolkQE8WFf89jxGIwXnjeYWN17sH5ESqBrLi9zfRMHojpS5okDRSz_gmUkSIijYf_fcecUYf5qB11Vrk4umwazTYz-OtOh9yhww9d1bJJpiZblnPIrSwxXnU8-a_oT68bclp2ZJkISDq2dEX0k6rgIuu7qoLjgoz7PruYBwk5jY9pQO36S3_6fXEtEy9rgH1NTqExhIKDfeQUX3207IRSx1MPlX4otbRn6VNrQkyGQUCRC5vyx99Pzn7AQSqz9tu6KGcAoeL5ezdkkiOdW91WG81nIkgEvJV3Pmz_E1wOvLeF3dk1mMSo0W4lr8ahdJTciI_pxuUpYQMpki8bpkqTlGFX8TvQPOc0UOmCPemahDcOFDYf7k6uTWdUfmbIuFAivTCdanR22-fcZ2AIfJ2IkzEqODL9meevZOAxIBL44axEH6JluemDoQJ1lIn3sD_tyn9Kt-Y0xo0H4WNDd6BS6u4fmx1YBfG4OPw5xMQ",4000,3000,null,null,null,null,null,null,[5264470]]
