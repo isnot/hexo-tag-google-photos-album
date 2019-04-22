@@ -153,10 +153,12 @@ function addLoadEvent(func) {
   }
 }
 addLoadEvent(function() {
+    console.log(googlePhotosAlbum_images);
   try {
     if (!Array.isArray(googlePhotosAlbum_images)) { return; }
     const imgs = document.body.querySelectorAll('.googlePhotosAlbum_images a');
     for (let anchor of imgs) {
+    console.log(anchor);
       anchor.href = anchor.href.replace(/${options.large_param_regexp}/i, '${options.middle_param}');
     }
   } catch(e) {
