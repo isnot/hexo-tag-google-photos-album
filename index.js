@@ -92,10 +92,8 @@ async function getTagHtml(options) {
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
   const images_html = getImgHtml(image_urls, options);
   const contents = util.htmlTag('div', { class: options.className },  metadatas + images_html);
-  const script_data = `<script>
-const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
-const gpa_opt = ${JSON.stringify(options)};
-` + getClientSideScript() + '\n</script>\n';
+  const script_data = `<script>const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};` + getClientSideScript() + '\n</script>\n';
+  // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
   return contents + script_data;
 }
 
@@ -145,7 +143,7 @@ function getClientSideScript() {
   return `
 function addLoadEvent(func) {
   const oldonload = window.onload;
-  if (typeof window.onload != 'function') {
+  if (typeof window.onload !== 'function') {
     window.onload = func;
   } else {
     window.onload = function() {
@@ -154,20 +152,17 @@ function addLoadEvent(func) {
     };
   }
 }
-
 addLoadEvent(function() {
   try {
     if (!Array.isArray(googlePhotosAlbum_images)) { return; }
     const imgs = document.body.querySelectorAll('.googlePhotosAlbum_images a');
-    const regex = new RegExp(gpa_opt.large_param_regexp, 'i');
     for (let anchor of imgs) {
-      anchor.href = anchor.href.replace(regex, middle_param);
+      anchor.href = anchor.href.replace(/${options.large_param_regexp}/i, middle_param);
     }
   } catch(e) {
     console.log(e);
   }
-});
-`;
+});`;
 }
 
 ////////////////////
