@@ -4,7 +4,7 @@
 * Copyright (c) 2019 isnot
 * Licensed under the MIT license.
 * Syntax:
-* {% googlePhotosAlbum url maxPics %}
+* {% googlePhotosAlbum url %}
 **/
 
 'use strict';
@@ -25,7 +25,7 @@ const metascraper = require('metascraper')([
 
 const factory_defaults = {
   descriptionLength: 140,
-  maxPics: 99,
+  maxPics: 999,
   target: '_blank',
   rel: 'noopener',
   className: 'google-photos-album-area',
@@ -43,7 +43,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
     local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
   }
-  local_settings = Object.assign(local_settings, {url: args[0], maxPics: args[1]});
+  local_settings = Object.assign(local_settings, {url: args[0]});
   local_settings.large_param_regexp = util.escapeRegExp(local_settings.large_param);
 
   if (!local_settings.generateAlways && isDev()) { return; }
@@ -104,11 +104,10 @@ function getImageUrls(html, max) {
   const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w\-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
   let matched = [];
   let myArray;
-  let count = 0;
   while ((myArray = regex.exec(html)) !== null) {
-    console.log(max, count, myArray[1]);
-    matched.push(...myArray.slice(1));
-    count++;
+    if (max >= matched.length) {
+      matched.push(...myArray.slice(1));
+    }
   }
   return matched;
 }
