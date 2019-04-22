@@ -157,7 +157,7 @@ addLoadEvent(function() {
     if (!Array.isArray(googlePhotosAlbum_images)) { return; }
     const imgs = document.body.querySelectorAll('.googlePhotosAlbum_images a');
     for (let anchor of imgs) {
-      anchor.href = anchor.href.replace(/${options.large_param_regexp}/i, middle_param);
+      anchor.href = anchor.href.replace(/${options.large_param_regexp}/i, '${options.middle_param}');
     }
   } catch(e) {
     console.log(e);
