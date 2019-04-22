@@ -33,7 +33,7 @@ const factory_defaults = {
   generateAlways: false,
   large_param: '=s2000-no',
   middle_param: '=s800-no',
-  small_param: '=h170-no',
+  small_param: '=w170-no',
   url: ''
 };
 
@@ -154,6 +154,9 @@ function addLoadEvent(func) {
 }
 addLoadEvent(function() {
   try {
+    if (window.innerWidth > 768) {
+      return;
+    }
     let imgs = document.body.querySelectorAll('.google-photos-album-images a');
     for (let anchor of imgs) {
       console.log(anchor);
