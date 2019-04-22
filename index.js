@@ -94,7 +94,7 @@ async function getTagHtml(options) {
   const contents = util.htmlTag('div', { class: options.className },  metadatas + images_html);
   const script_data = `<script>
 const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
-const options = ${JSON.stringify(options)};
+const gpa_opt = ${JSON.stringify(options)};
 ` + getClientSideScript() + '\n</script>\n';
   return contents + script_data;
 }
@@ -159,7 +159,7 @@ addLoadEvent(function() {
   try {
     if (!Array.isArray(googlePhotosAlbum_images)) { return; }
     const imgs = document.body.querySelectorAll('.googlePhotosAlbum_images a');
-    const regex = new RegExp(options.large_param_regexp, 'i');
+    const regex = new RegExp(gpa_opt.large_param_regexp, 'i');
     for (let anchor of imgs) {
       anchor.href = anchor.href.replace(regex, middle_param);
     }
