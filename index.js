@@ -92,7 +92,7 @@ async function getTagHtml(options) {
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
   const images_html = getImgHtml(image_urls, options);
   const contents = util.htmlTag('div', { class: options.className },  metadatas + images_html);
-  const script_data = `<script>const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};` + getClientSideScript() + '\n</script>\n';
+  const script_data = `<script>const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};` + getClientSideScript(options) + '\n</script>\n';
   // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
   return contents + script_data;
 }
@@ -106,7 +106,9 @@ function getImageUrls(html, max) {
   let myArray;
   let count = 0;
   while ((myArray = regex.exec(html)) !== null) {
-    matched.push(...myArray.slice(1));
+    if (max >= count) {
+      matched.push(...myArray.slice(1));
+    }
     count++;
   }
   return matched;
@@ -139,7 +141,7 @@ function isDev() {
   }
 }
 
-function getClientSideScript() {
+function getClientSideScript(options) {
   return `
 function addLoadEvent(func) {
   const oldonload = window.onload;
