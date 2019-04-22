@@ -44,7 +44,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
     local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
   }
   local_settings = Object.assign(local_settings, {url: args[0], maxPics: args[1]});
-  local_settings.large_param_regexp = util.escapeRegex(local_settings.large_param);
+  local_settings.large_param_regexp = util.escapeRegExp(local_settings.large_param);
 
   if (!local_settings.generateAlways && isDev()) { return; }
 
@@ -91,7 +91,7 @@ async function getTagHtml(options) {
   const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
   const images_html = getImgHtml(image_urls, options);
-  const contents = util.htmlTag('div', { class: className },  metadatas + images_html);
+  const contents = util.htmlTag('div', { class: options.className },  metadatas + images_html);
   const script_data = `<script>
 const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
 const options = ${JSON.stringify(options)};
@@ -107,8 +107,8 @@ function getImageUrls(html, max) {
   let matched = [];
   let myArray;
   let count = 0;
-  while ((myArray = regex.exec(html)) !== null && max > count) {
-    matched.push(myArray.slice(1));
+  while ((myArray = regex.exec(html)) !== null) {
+    matched.push(...myArray.slice(1));
     count++;
   }
   return matched;
@@ -116,7 +116,7 @@ function getImageUrls(html, max) {
 
 function getImgHtml(images, options) {
   return '<div class="google-photos-album-images clearfix">' + images.map(url => {
-    return `<a href="${url}${large_param}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.small_param}"></a>`;
+    return `<a href="${url}${options.large_param}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.small_param}"></a>`;
   }).join('\n') + '</div>';
 }
 
