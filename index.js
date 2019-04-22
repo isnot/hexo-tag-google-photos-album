@@ -106,9 +106,8 @@ function getImageUrls(html, max) {
   let myArray;
   let count = 0;
   while ((myArray = regex.exec(html)) !== null) {
-    if (max >= count) {
-      matched.push(...myArray.slice(1));
-    }
+    console.log(max, count, myArray[1]);
+    matched.push(...myArray.slice(1));
     count++;
   }
   return matched;
