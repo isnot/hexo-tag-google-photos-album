@@ -1,0 +1,103 @@
+/* Google Phots Album */
+.google-photos-album-area {
+  overflow: hidden;
+  margin: 1em auto;
+  padding: 10px;
+  width: 100%;
+  background-color: rgba( 240, 240, 240, 1 );
+}
+.google-photos-album-area .metadatas {
+  position: relative;
+  margin-bottom: 10px;
+  padding: 8px 0 0 0;
+}
+.google-photos-album-area a.og-url {
+  position: absolute;
+  top: 10px;
+  background-color: rgba( 240, 240, 240, 0.7 );
+}
+.google-photos-album-area span.og-title {
+  font-size: 200%;
+  font-weight: bold;
+}
+.google-photos-album-area span.og-title::before {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  background: url(//ssl.gstatic.com/images/branding/product/1x/photos_64dp.png);
+  background-size: 32px 32px;
+  margin: 0 5px 0 0;
+}
+.google-photos-album-area span.og-description {
+  color: #555;
+  font-size: 0.9em;
+  margin-top: 0.2em;
+}
+.google-photos-album-area span.og-description::before {
+  content: ' ';
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 5px;
+}
+.google-photos-album-area span.og-description::after {
+  content: '🔗';
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 5px 0 2px;
+}
+.google-photos-album-area .og-image {
+  max-width: 100%;
+  margin: 0 auto !important;
+  vertical-align: bottom;
+}
+.google-photos-album-images {
+  margin: 1em auto;
+  padding: 0;
+  width: 100%;
+  column-count: 3;
+  column-gap: 0;
+  column-fill: balance;
+}
+.google-photos-album-images a {
+  max-width: 100%;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+.google-photos-album-images a img {
+  width: 97%;
+  display: inline !important;
+  margin: 2px !important;
+  vertical-align: bottom;
+  border-radius: 8px;
+}
+@media (max-width: 1040px) {
+  .google-photos-album-images {
+    column-count: 3;
+  }
+  .google-photos-album-area span.og-title {
+    font-size: 160%;
+  }
+}
+@media (max-width: 768px) {
+  .google-photos-album-images {
+    column-count: 2;
+  }
+  .google-photos-album-area span.og-title {
+    font-size: 100%;
+  }
+}
+@media (max-width: 360px) {
+  .google-photos-album-images {
+    column-count: 1;
+  }
+  .google-photos-album-area span.og-title {
+    font-size: 100%;
+  }
+  .google-photos-album-area span.og-description {
+    font-size: 80%;
+  }
+}
+/* End of Google Phots Album */
