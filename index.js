@@ -62,7 +62,6 @@ hexo.extend.filter.register('inject_ready', (inject) => {
   if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
     local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
   }
-  local_settings = Object.assign(local_settings, {url: args[0]});
   if (local_settings.enableDefaultStyle) {
     const css = fs.createReadStream(local_settings.defaultStyle);
     inject.style('head_end', {media: 'screen'}, css);
