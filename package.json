@@ -1,10 +1,12 @@
 {
   "name": "hexo-tag-google-photos-album",
   "version": "1.0.1",
-  "description": "This plugin will generate a photos album for hexo",
+  "description": "This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to embed albums from Google Photos.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "npm install --save hexo-inject",
+    "eslint": "eslint"
   },
   "repository": {
     "type": "git",
@@ -12,6 +14,7 @@
   },
   "keywords": [
     "hexo",
+    "photos",
     "plugin"
   ],
   "author": {
@@ -25,12 +28,16 @@
   "dependencies": {
     "got": "^9.6.0",
     "hexo-fs": "^0.2.2",
-    "hexo-log": "^0.2.0",
+    "hexo-inject": "^1.0.0",
     "hexo-util": "^0.6.3",
     "metascraper": "^5.1.1",
     "metascraper-description": "^5.1.0",
     "metascraper-image": "^5.1.0",
     "metascraper-title": "^5.1.0",
     "metascraper-url": "^5.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-hexo": "^3.0.0"
   }
 }

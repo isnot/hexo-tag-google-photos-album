@@ -1,0 +1,20 @@
+{
+  "extends": "hexo",
+  "root": true,
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "strict": "off",
+    "node/no-unpublished-require": "off",
+    "node/no-unsupported-features": "off",
+    "require-await": 2
+  },
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "hexo": "readonly"
+  }
+}
