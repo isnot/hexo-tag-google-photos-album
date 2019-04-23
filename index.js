@@ -9,11 +9,7 @@
 
 'use strict';
 // const pathFn = require('path');
-// const fs = require('hexo-fs');
-// const log = require('hexo-log')({
-//   debug: false,
-//   silent: false
-// });
+const fs = require('hexo-fs');
 const util = require('hexo-util');
 const got = require('got');
 const metascraper = require('metascraper')([
@@ -25,51 +21,78 @@ const metascraper = require('metascraper')([
 
 const factory_defaults = {
   descriptionLength: 140,
-  maxPics: 999,
   target: '_blank',
   rel: 'noopener',
   className: 'google-photos-album-area',
-  enableFactoryStyle: true,
+  enableDefaultStyle: true,
+  defaultStyle: './css/google_photos_album.css',
+  largeSizeThreshold: 768,
+  largeSize: '=s1920-no',
+  middleSize: '=s720-no',
+  smallSize: '=w225-no',
   generateAlways: false,
-  large_param: '=s2000-no',
-  middle_param: '=s800-no',
-  small_param: '=w170-no',
-  url: ''
+  maxPics: 999,
+  url: '',
+  userStyle: ''
 };
+let local_settings = factory_defaults;
 
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (!args) { return; }
-  let local_settings = factory_defaults;
   if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
     local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
   }
   local_settings = Object.assign(local_settings, {url: args[0]});
-  local_settings.large_param_regexp = util.escapeRegExp(local_settings.large_param);
+  local_settings.middleSizeRegExp = util.escapeRegExp(local_settings.middleSize);
 
   if (!local_settings.generateAlways && isDev()) { return; }
 
   return getTagHtml(local_settings).then(tag => {
     return tag;
   }).catch(err => {
-    console.log('Something went wrong! ', err);
+    console.log('google-photos-album: Something went wrong! ', err);
     return '';
   });
 }, {
   async: true
 });
 
+hexo.extend.filter.register('inject_ready', (inject) => {
+  // const _hexo = this;
+  if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
+    local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
+  }
+  local_settings = Object.assign(local_settings, {url: args[0]});
+  if (local_settings.enableDefaultStyle) {
+    const css = fs.createReadStream(local_settings.defaultStyle);
+    inject.style('head_end', {media: 'screen'}, css);
+    // inject.link('head_end', { src: local_settings.defaultStyle, rel: 'stylesheet' }, opts);
+  }
+
+  const script_data = `<script>${getClientSideScript(local_settings)}</script>`;
+  // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
+  // const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
+  inject.raw('body_begin', script_data);
+  // inject.require('body_begin', module, opts);
+});
+
 async function getTagHtml(options) {
   const { body: html, url } = await got(options.url);
+  // try {
+  // } catch (error) {
+  //   console.log(error.response.body);
+  // }
+
   const og = await metascraper({ html, url });
   console.log('google-photos-album:', og);
   if (typeof og !== 'object' || og === null) {
-    throw new Error('I can not get metadata.');
+    throw new Error('google-photos-album: I can not get metadata.');
   }
 
   const image_urls = await getImageUrls(html, options.maxPics);
   console.log('google-photos-album:', image_urls);
   if (!Array.isArray(image_urls) || image_urls.length < 1) {
-    throw new Error('I can not get images from album.');
+    throw new Error('google-photos-album: I can not get images via scraping.');
   }
 
   let head_image = '';
@@ -84,24 +107,22 @@ async function getTagHtml(options) {
   }
 
   if (hasProperty(og, 'description')) {
-    const description = adjustLength(og.description, options.descriptionLength);
+    const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '});
     props += util.htmlTag('span', { class: 'og-description' }, util.escapeHTML(description));
   }
 
   const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
   const images_html = getImgHtml(image_urls, options);
-  const contents = util.htmlTag('div', { class: options.className },  metadatas + images_html);
-  const script_data = `<script>const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};` + getClientSideScript(options) + '\n</script>\n';
-  // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
-  return contents + script_data;
+  const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
+  return contents;
 }
 
 function getImageUrls(html, max) {
   if (typeof html !== 'string' || html === '') {
     return [];
   }
-  const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w\-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
+  const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
   let matched = [];
   let myArray;
   while ((myArray = regex.exec(html)) !== null) {
@@ -113,30 +134,22 @@ function getImageUrls(html, max) {
 }
 
 function getImgHtml(images, options) {
-  return '<div class="google-photos-album-images clearfix">' + images.map(url => {
-    return `<a href="${url}${options.large_param}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.small_param}"></a>`;
-  }).join('\n') + '</div>';
+  return '\n<div class="google-photos-album-images clearfix">' + images.map(url => {
+    return `<a href="${url}${options.middleSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}"></a>`;
+  }).join('\n') + '</div>\n';
 }
 
 function hasProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-function adjustLength(text, maxLength) {
-  if (typeof text === 'string' && text.length > maxLength) {
-    text = text.slice(0, maxLength) + '…';
-  }
-  return text;
-}
-
 function isDev() {
   if (process.argv.length > 2 && (process.argv[2].match(/^d/) || process.argv[2].match(/^g/))) {
     // console.log('hexo-env: production');
     return false;
-  } else {
-    // console.log('hexo-env: development');
-    return true;
   }
+  // console.log('hexo-env: development');
+  return true;
 }
 
 function getClientSideScript(options) {
@@ -146,21 +159,20 @@ function addLoadEvent(func) {
   if (typeof window.onload !== 'function') {
     window.onload = func;
   } else {
-    window.onload = function() {
+    window.onload = () => {
       oldonload();
       func();
     };
   }
 }
-addLoadEvent(function() {
+addLoadEvent(() => {
   try {
-    if (window.innerWidth > 768) {
+    if (window.innerWidth < options.largeSizeThreshold) {
       return;
     }
     let imgs = document.body.querySelectorAll('.google-photos-album-images a');
     for (let anchor of imgs) {
-      console.log(anchor);
-      anchor.href = anchor.href.replace(/${options.large_param_regexp}/i, '${options.middle_param}');
+      anchor.href = anchor.href.replace(/${options.middleSizeRegExp}/i, '${options.largeSize}');
     }
   } catch(e) {
     console.log(e);
@@ -168,7 +180,7 @@ addLoadEvent(function() {
 });`;
 }
 
-////////////////////
+// sample data
 // <meta name="og:site_name" content="Google Photos">
 // <meta property="og:title" content="2019年4月18日">
 // <meta property="og:description" content="8 new photos added to shared album">
