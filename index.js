@@ -79,12 +79,15 @@ hexo.extend.filter.register('after_generate', post => {
       'css',
       config.defaultStyle.replace(/\//g, '')
     );
-    console.log('###css path###', hexo.base_dir, css);
-    fs.readFile(css, content => {
+    console.log('###css path###', css);
+
+    fs.readFileAsync(css).then(content => {
       console.log('###css###', content);
+      return content;
     }).catch(e => {
       throw new Error('google-photos-album: file error: ', e);
     });
+
     // inject.style('head_end', {media: 'screen'}, css);
     // inject.link('head_end', { src: config.defaultStyle, rel: 'stylesheet' }, opts);
   }
