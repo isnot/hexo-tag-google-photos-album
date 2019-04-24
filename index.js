@@ -148,6 +148,30 @@ async function getImgHtml(images, options) {
   }
 }
 
+async function copyCss() {
+  const config = margeConfig(hexo.config);
+  // const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
+  const css_filename = config.defaultStyle;
+  const dest = pathFn.join(
+    hexo.public_dir,
+    'css',
+    pathFn.basename(css_filename, pathFn.extname(css_filename)) + '.css'
+  );
+  const src = pathFn.join(
+    hexo.plugin_dir,
+    'hexo-tag-google-photos-album/css',
+    css_filename
+  );
+  // if (fs.exists(dest)) { return; }
+
+  logger.debug(`google-photos-album: copyCss ${css_filename}`);
+  fs.copyFile(src, dest).then(_ => {
+    logger.debug(`google-photos-album: copy done. ${src} => ${dest}`);
+  }).catch(e => {
+    throw new Error('google-photos-album: file error. ' + e);
+  });
+}
+
 // Tag Plugin
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   logger.log('google-photos-album: start ', args[0]);
@@ -164,50 +188,32 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
-hexo.extend.filter.register('after_post_render', data => {
-  logger.debug('google-photos-album: filter', Object.keys(data).length);
-  if (ignore(data)) { return data; }
+hexo.extend.filter.register('after_render:html', function(str, data) {
+  logger.debug('google-photos-album: filter', Object.keys(data).length, str);
+  if (ignore(data)) { return str; }
 
   const config = margeConfig(hexo.config);
-  const $ = cheerio.load(data.content, {decodeEntities: false});
-
-  if (config.enableDefaultStyle) {
-    $('body').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
-    // integrity="sha512-xxxx=="
-  }
+  const $ = cheerio.load(str, {decodeEntities: false});
 
   $('body').append(front.scriptHtml(config));
 
-  data.content = $('body').html();
-  return data;
+  if (config.enableDefaultStyle) {
+    copyCss().then(_ => {
+      $('head').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
+    }).catch(e => {
+      throw new Error('google-photos-album: miss css.' + e);
+    });
+    // integrity="sha512-xxxx=="
+  }
+
+  return $.html();
 });
 
-// Copy Files
-if (margeConfig({}).enableDefaultStyle) {
-  hexo.extend.generator.register('google-photos-album-css', locals => {
-    const config = margeConfig(locals.config);
-    logger.debug('google-photos-album: generator', Object.keys(locals).length);
-
-    // const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
-    const css_filename = config.defaultStyle;
-    const dist = pathFn.join(
-      hexo.public_dir,
-      'css',
-      pathFn.basename(css_filename, pathFn.extname(css_filename)) + '.css'
-    );
-    const src = pathFn.join(
-      hexo.plugin_dir,
-      'hexo-tag-google-photos-album/css',
-      css_filename
-    );
-    logger.debug(`google-photos-album: copy ${src} => ${dist}`);
-    // throw new Error('google-photos-album: file error. ' + e);
-    return {
-      path: dist,
-      data: fs.readFile(src)
-    };
-  });
-}
+// hexo.extend.filter.register('after_post_render', data => {
+//   logger.debug('google-photos-album: filter', Object.keys(data).length);
+//   data.content = $('body').html();
+//   return data;
+// });
 
 // sample data
 // <meta name="og:site_name" content="Google Photos">
