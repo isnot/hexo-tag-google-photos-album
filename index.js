@@ -72,7 +72,7 @@ hexo.extend.filter.register('after_generate', post => {
     config = Object.assign(factory_defaults, config);
   }
   if (config.enableDefaultStyle) {
-    fs.createReadStream(config.defaultStyle).then(content => {
+    fs.readFile(config.defaultStyle, content => {
       console.log('###css###', content);
     }).catch(e => {
       throw new Error('google-photos-album: file error: ', e);
