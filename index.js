@@ -200,16 +200,11 @@ if (margeConfig({}).enableDefaultStyle) {
       'hexo-tag-google-photos-album/css',
       css_filename
     );
+    logger.debug(`google-photos-album: copy ${src} => ${dist}`);
+    // throw new Error('google-photos-album: file error. ' + e);
     return {
       path: dist,
-      data: _ => {
-        logger.debug(`google-photos-album: copy ${src} => ${dist}`);
-        try {
-          return fs.createReadStream(src);
-        } catch (e) {
-          throw new Error('google-photos-album: file error. ' + e);
-        }
-      }
+      data: fs.createReadStream(src)
     };
   });
 }
