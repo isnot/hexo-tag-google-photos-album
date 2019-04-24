@@ -172,7 +172,8 @@ if (margeConfig({}).enableDefaultStyle) {
     const config = margeConfig(locals.config);
     logger.log('DEBUG generator', locals.length);
 
-    const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
+    // const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
+    const css_filename = config.defaultStyle;
     const dist = pathFn.join(
       hexo.public_dir,
       'css',
@@ -186,7 +187,7 @@ if (margeConfig({}).enableDefaultStyle) {
     return {
       path: dist,
       data: _ => {
-        logger.log('DEBUG fs', src);
+        logger.log('DEBUG fs', src, dist);
         try {
           return fs.createReadStream(src);
         } catch (e) {
