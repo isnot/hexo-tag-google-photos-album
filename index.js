@@ -189,28 +189,28 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // Inject Style/Script
 hexo.extend.filter.register('after_render:html', function(str, data) {
-  logger.debug('google-photos-album: filter', data);
+  logger.debug('google-photos-album: filter', data.path);
   if (ignore(data.path)) { return str; }
 
   const config = margeConfig(hexo.config);
-  // const $ = cheerio.load(str, {decodeEntities: false});
-
   if (config.enableDefaultStyle) {
     str = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${str}`;
-    copyCss().catch(e => {
-      throw new Error('google-photos-album: miss css.' + e);
-    });
     // integrity="sha512-xxxx=="
   }
 
   return str + front.scriptHtml(config);
 });
 
-// hexo.extend.filter.register('after_post_render', data => {
-//   logger.debug('google-photos-album: filter', Object.keys(data).length);
-//   data.content = $('body').html();
-//   return data;
-// });
+// Copy file
+hexo.extend.filter.register('before_exit', _ => {
+  logger.debug('google-photos-album: exit');
+  const config = margeConfig(hexo.config);
+  if (config.enableDefaultStyle) {
+    copyCss().catch(e => {
+      throw new Error('google-photos-album: miss css.' + e);
+    });
+  }
+});
 
 // sample data
 // <meta name="og:site_name" content="Google Photos">
