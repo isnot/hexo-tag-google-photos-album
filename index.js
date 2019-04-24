@@ -40,8 +40,8 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   console.log('DEBUG tag', typeof this, args);
   if (!args) { return; }
   let config = {};
-  if (hasProperty(this, 'config') && hasProperty(this.config, 'googlePhotosAlbum')) {
-    config = this.config.googlePhotosAlbum;
+  if (hasProperty(hexo.config, 'googlePhotosAlbum') {
+    config = hexo.config.googlePhotosAlbum;
   }
   if (typeof config === 'object' && config !== null) {
     config = Object.assign(factory_defaults, config);
@@ -65,8 +65,8 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 hexo.extend.filter.register('after_generate', post => {
   console.log('DEBUG filter', typeof this, typeof post);
   let config = {};
-  if (hasProperty(this, 'config') && hasProperty(this.config, 'googlePhotosAlbum')) {
-    config = this.config.googlePhotosAlbum;
+  if (hasProperty(hexo.config, 'googlePhotosAlbum') {
+    config = hexo.config.googlePhotosAlbum;
   }
   if (typeof config === 'object' && config !== null) {
     config = Object.assign(factory_defaults, config);
@@ -148,6 +148,9 @@ function getImgHtml(images, options) {
 }
 
 function hasProperty(obj, prop) {
+  if (typeof obj !== 'obj' || obj === null) {
+    return undefined;
+  }
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
