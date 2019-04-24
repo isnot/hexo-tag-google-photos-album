@@ -8,8 +8,7 @@
   "rules": {
     "strict": "off",
     "node/no-unpublished-require": "off",
-    "node/no-unsupported-features": "off",
-    "require-await": 2
+    "node/no-unsupported-features": "off"
   },
   "env": {
     "browser": true

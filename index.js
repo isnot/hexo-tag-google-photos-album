@@ -150,24 +150,22 @@ async function getImgHtml(images, options) {
 
 // Tag Plugin
 hexo.extend.tag.register('googlePhotosAlbum', args => {
-  logger.log('DEBUG tag', args.length);
+  logger.log('google-photos-album: start ', args[0]);
   if (!args) { return; }
   let config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
   config.url = args[0];
-  (async _ => {
-    return await getTagHtml(config).catch(e => {
-      throw new Error('google-photos-album: miss.' + e);
-    });
-  })();
+  return getTagHtml(config).catch(e => {
+    throw new Error('google-photos-album: miss.' + e);
+  });
 }, {
   async: true
 });
 
 // Inject Style/Script
 hexo.extend.filter.register('after_post_render', data => {
-  logger.log('DEBUG filter', data.length);
+  logger.debug('google-photos-album: filter', Object.keys(data).length);
   if (ignore(data)) { return data; }
 
   const config = margeConfig(hexo.config);
@@ -188,7 +186,7 @@ hexo.extend.filter.register('after_post_render', data => {
 if (margeConfig({}).enableDefaultStyle) {
   hexo.extend.generator.register('google-photos-album-css', locals => {
     const config = margeConfig(locals.config);
-    logger.log('DEBUG generator', Object.keys(locals).length);
+    logger.debug('google-photos-album: generator', Object.keys(locals).length);
 
     // const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
     const css_filename = config.defaultStyle;
@@ -205,7 +203,7 @@ if (margeConfig({}).enableDefaultStyle) {
     return {
       path: dist,
       data: _ => {
-        logger.log('DEBUG fs', src, dist);
+        logger.debug(`google-photos-album: copy ${src} => ${dist}`);
         try {
           return fs.createReadStream(src);
         } catch (e) {
