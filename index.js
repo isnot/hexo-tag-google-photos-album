@@ -60,7 +60,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // inject_ready
 hexo.extend.filter.register('after_generate', (post) => {
-  console.log('DEBUG filter', typeof this, Object.keys(this), Object.keys(post));
+  console.log('DEBUG filter', typeof this, typeof post);
   let config = this.config.googlePhotosAlbum;
   if (typeof config === 'object' && config !== null) {
     config = Object.assign(factory_defaults, config);
