@@ -74,7 +74,7 @@ hexo.extend.filter.register('after_generate', post => {
   if (config.enableDefaultStyle) {
     const css = pathFn.join(
       hexo.base_dir,
-      'node_modules'
+      'node_modules',
       'hexo-tag-google-photos-album',
       'css',
       config.defaultStyle.replace(/\//g, '')
