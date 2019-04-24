@@ -89,7 +89,9 @@ async function getTagHtml(options) {
     throw new Error('google-photos-album: something went wrong!');
   }
 
-  const image_urls = await getImageUrls(html, options.maxPics);
+  const image_urls = await getImageUrls(html, options.maxPics).catch(e => {
+    throw new Error('google-photos-album: I can not get images.' + e);
+  });
   logger.log(`google-photos-album: found ${image_urls.length} images.`);
   if (!Array.isArray(image_urls) || image_urls.length < 1) {
     throw new Error('google-photos-album: I can not get images via scraping.');
@@ -113,7 +115,9 @@ async function getTagHtml(options) {
 
   const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
-  const images_html = await getImgHtml(image_urls, options);
+  const images_html = await getImgHtml(image_urls, options).catch(e => {
+    throw new Error('google-photos-album: I can not format html.');
+  });
   const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
   return await contents;
 }
@@ -153,7 +157,9 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   config.url = args[0];
   config.mediumSizeRegExp = util.escapeRegExp(config.mediumSize);
   (async _ => {
-    return await getTagHtml(config);
+    return await getTagHtml(config).catch(e => {
+      throw new Error('google-photos-album: miss.' + e);
+    });
   })();
 }, {
   async: true
