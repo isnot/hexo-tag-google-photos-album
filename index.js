@@ -204,7 +204,7 @@ if (margeConfig({}).enableDefaultStyle) {
     // throw new Error('google-photos-album: file error. ' + e);
     return {
       path: dist,
-      data: fs.createReadStream(src)
+      data: fs.readFile(src)
     };
   });
 }
