@@ -13,7 +13,7 @@ const fs = require('hexo-fs');
 const util = require('hexo-util');
 const logger = hexo.log || console;
 const got = require('got');
-const cheerio = require('cheerio');
+// const cheerio = require('cheerio');
 const metascraper = require('metascraper')([
   require('metascraper-description')(),
   require('metascraper-image')(),
@@ -189,24 +189,21 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // Inject Style/Script
 hexo.extend.filter.register('after_render:html', function(str, data) {
-  logger.debug('google-photos-album: filter', Object.keys(data).length, str);
+  logger.debug('google-photos-album: filter', Object.keys(data));
   if (ignore(data)) { return str; }
 
   const config = margeConfig(hexo.config);
-  const $ = cheerio.load(str, {decodeEntities: false});
-
-  $('body').append(front.scriptHtml(config));
+  // const $ = cheerio.load(str, {decodeEntities: false});
 
   if (config.enableDefaultStyle) {
-    copyCss().then(_ => {
-      $('head').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
-    }).catch(e => {
+    str = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${str}`;
+    copyCss().catch(e => {
       throw new Error('google-photos-album: miss css.' + e);
     });
     // integrity="sha512-xxxx=="
   }
 
-  return $.html();
+  return str + front.scriptHtml(config);
 });
 
 // hexo.extend.filter.register('after_post_render', data => {
