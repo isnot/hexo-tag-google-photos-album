@@ -72,7 +72,11 @@ hexo.extend.filter.register('after_generate', post => {
     config = Object.assign(factory_defaults, config);
   }
   if (config.enableDefaultStyle) {
-    const css = fs.createReadStream(config.defaultStyle);
+    fs.createReadStream(config.defaultStyle).then(content => {
+      console.log('###css###', content);
+    }).catch(e => {
+      throw new Error('google-photos-album: file error: ', e);
+    });
     // inject.style('head_end', {media: 'screen'}, css);
     // inject.link('head_end', { src: config.defaultStyle, rel: 'stylesheet' }, opts);
   }
