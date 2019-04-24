@@ -156,7 +156,6 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (!config.generateAlways && isDev()) { return; }
 
   config.url = args[0];
-  config.mediumSizeRegExp = util.escapeRegExp(config.mediumSize);
   (async _ => {
     return await getTagHtml(config).catch(e => {
       throw new Error('google-photos-album: miss.' + e);
@@ -175,7 +174,7 @@ hexo.extend.filter.register('after_post_render', data => {
   const $ = cheerio.load(data.content, {decodeEntities: false});
 
   if (config.enableDefaultStyle) {
-    $('head').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
+    $('body').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
     // integrity="sha512-xxxx=="
   }
 
@@ -189,7 +188,7 @@ hexo.extend.filter.register('after_post_render', data => {
 if (margeConfig({}).enableDefaultStyle) {
   hexo.extend.generator.register('google-photos-album-css', locals => {
     const config = margeConfig(locals.config);
-    logger.log('DEBUG generator', locals.length);
+    logger.log('DEBUG generator', Object.keys(locals).length);
 
     // const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
     const css_filename = config.defaultStyle;

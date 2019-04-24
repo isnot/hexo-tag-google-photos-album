@@ -1,3 +1,5 @@
+const util = require('hexo-util');
+
 function addLoadEvent(func) {
   const oldonload = window.onload;
   if (typeof window.onload !== 'function') {
@@ -35,11 +37,12 @@ function stringify(v) {
 
 function getClientSideScript(options) {
   let content = stringify(registerToLoadEvent);
+  const mediumSizeRegExp = util.escapeRegExp(options.mediumSize);
   content = content
     .replace('function registerToLoadEvent() {', '')
     .replace('LARGESIZETHRESHOLD', options.largeSizeThreshold)
-    .replace('MEDIUMSIZEREGEXP', options.mediumSizeRegExp)
-    .replace('LARGESIZE', 'options.largeSize')
+    .replace('MEDIUMSIZEREGEXP', mediumSizeRegExp)
+    .replace('LARGESIZE', options.largeSize)
     .replace(/}$/, '');
 
   // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
