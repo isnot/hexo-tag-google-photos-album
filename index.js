@@ -37,7 +37,7 @@ const factory_defaults = {
 };
 
 hexo.extend.tag.register('googlePhotosAlbum', args => {
-  console.log('DEBUG tag', typeof this, args);
+  console.log('DEBUG tag', args);
   if (!args) { return; }
   let config = {};
   if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
@@ -63,7 +63,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // inject_ready
 hexo.extend.filter.register('after_generate', post => {
-  console.log('DEBUG filter', typeof this, typeof post);
+  console.log('DEBUG filter', Object.keys(post));
   let config = {};
   if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
     config = hexo.config.googlePhotosAlbum;
@@ -79,6 +79,7 @@ hexo.extend.filter.register('after_generate', post => {
       'css',
       config.defaultStyle.replace(/\//g, '')
     );
+    console.log('###css path###', hexo.base_dir, css);
     fs.readFile(css, content => {
       console.log('###css###', content);
     }).catch(e => {
