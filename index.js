@@ -40,7 +40,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   console.log('DEBUG tag', typeof this, args);
   if (!args) { return; }
   let config = {};
-  if (hasProperty(hexo.config, 'googlePhotosAlbum') {
+  if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
     config = hexo.config.googlePhotosAlbum;
   }
   if (typeof config === 'object' && config !== null) {
@@ -65,7 +65,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 hexo.extend.filter.register('after_generate', post => {
   console.log('DEBUG filter', typeof this, typeof post);
   let config = {};
-  if (hasProperty(hexo.config, 'googlePhotosAlbum') {
+  if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
     config = hexo.config.googlePhotosAlbum;
   }
   if (typeof config === 'object' && config !== null) {
