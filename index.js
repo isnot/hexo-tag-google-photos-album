@@ -59,8 +59,8 @@ function isDev() {
   return true;
 }
 
-function ignore(data) {
-  var source = data.source;
+function ignore(source) {
+  // var source = data.source;
   var ext = source.substring(source.lastIndexOf('.')).toLowerCase();
   return ['.html', '.htm'].indexOf(ext) > -1;
 }
@@ -189,8 +189,8 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // Inject Style/Script
 hexo.extend.filter.register('after_render:html', function(str, data) {
-  logger.debug('google-photos-album: filter', Object.keys(data));
-  if (ignore(data)) { return str; }
+  logger.debug('google-photos-album: filter', data);
+  if (ignore(data.path)) { return str; }
 
   const config = margeConfig(hexo.config);
   // const $ = cheerio.load(str, {decodeEntities: false});
