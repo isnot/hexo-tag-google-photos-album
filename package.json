@@ -25,7 +25,6 @@
   },
   "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.3",
     "got": "^9.6.0",
     "hexo-fs": "^1.0.2",
     "hexo-util": "^0.6.3",

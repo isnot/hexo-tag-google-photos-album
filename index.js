@@ -13,7 +13,6 @@ const fs = require('hexo-fs');
 const util = require('hexo-util');
 const logger = hexo.log || console;
 const got = require('got');
-// const cheerio = require('cheerio');
 const metascraper = require('metascraper')([
   require('metascraper-description')(),
   require('metascraper-image')(),
@@ -60,9 +59,8 @@ function isDev() {
 }
 
 function ignore(source) {
-  // var source = data.source;
   var ext = source.substring(source.lastIndexOf('.')).toLowerCase();
-  return ['.html', '.htm'].indexOf(ext) > -1;
+  return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
 }
 
 function margeConfig(config_yml) {
@@ -150,8 +148,7 @@ async function getImgHtml(images, options) {
 
 async function copyCss() {
   const config = margeConfig(hexo.config);
-  // const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
-  const css_filename = config.defaultStyle;
+  const css_filename = pathFn.basename(config.defaultStyle).replace(/[^\w-]/g, '');
   const dest = pathFn.join(
     hexo.public_dir,
     'css',
@@ -162,7 +159,6 @@ async function copyCss() {
     'hexo-tag-google-photos-album/css',
     css_filename
   );
-  // if (fs.exists(dest)) { return; }
 
   logger.debug(`google-photos-album: copyCss ${css_filename}`);
   fs.copyFile(src, dest).then(_ => {
@@ -189,13 +185,10 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // Inject Style/Script
 hexo.extend.filter.register('after_post_render', data => {
-  logger.debug('google-photos-album: filter', data.source);
+  // logger.debug('google-photos-album: filter', data.source);
   if (ignore(data.source)) { return data; }
 
   const config = margeConfig(hexo.config);
-  // const $ = cheerio.load(data.content, {decodeEntities: false});
-  // $('body').prepend(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
-  // $('body').append(front.scriptHtml(config));
   let myContent = data.content;
   if (config.enableDefaultStyle) {
     myContent = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${myContent}`;
@@ -207,7 +200,6 @@ hexo.extend.filter.register('after_post_render', data => {
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
-  logger.debug('google-photos-album: exit');
   const config = margeConfig(hexo.config);
   if (config.enableDefaultStyle) {
     copyCss().catch(e => {
@@ -215,11 +207,3 @@ hexo.extend.filter.register('before_exit', _ => {
     });
   }
 });
-
-// sample data
-// <meta name="og:site_name" content="Google Photos">
-// <meta property="og:title" content="2019年4月18日">
-// <meta property="og:description" content="8 new photos added to shared album">
-// <meta property="og:url" content="https://photos.google.com/share/AF1QipM-qmCtmxuhoUj5Y2lP7OUWe9FH1KjHqVuDokH9IxM1mj3ayWcbHxNa43NfaBLe2A?key=SUIyM0k0RkQ4OTY4elZmQVBwNDBFOFhJZVZwRTBn">
-// <meta property="og:image" content="https://lh3.googleusercontent.com/UT9ZLJ58COPY1aqWW9LD2HTWVONf9jWsqN4I85RFeUqe0-8Ag63EeGZOGMhJtNBlmPCvNBi_l13OWAFVP5fW-xYDm5WWrtGnODVr027TxPElWdty_waXNYR1uN-9B52_ert8M36YwCg=w600-h315-p-k">
-// ["https://lh3.googleusercontent.com/qNXy20DDeW3ClJw9J7UqgtKe6iouW_pemCUONrR2zoDiFHhKqJq5RtLeBSj8zmv6Opjg1oD81E8J_UEQworGABuZhf6aHmPaUaXwCFAJ77rrH285Q-j4LNmmebSguFJb0OsDyiwj8ztb30VEGS1nP79-ueUh4rQ3ZaBwk18tNu6ieQlzqfMu2k0kiQmPdSxBXrdDuAdCrGbXrn7GpJ8B7T06CG2u2F9wEGTSdX3y495SeTtyOnsolkQE8WFf89jxGIwXnjeYWN17sH5ESqBrLi9zfRMHojpS5okDRSz_gmUkSIijYf_fcecUYf5qB11Vrk4umwazTYz-OtOh9yhww9d1bJJpiZblnPIrSwxXnU8-a_oT68bclp2ZJkISDq2dEX0k6rgIuu7qoLjgoz7PruYBwk5jY9pQO36S3_6fXEtEy9rgH1NTqExhIKDfeQUX3207IRSx1MPlX4otbRn6VNrQkyGQUCRC5vyx99Pzn7AQSqz9tu6KGcAoeL5ezdkkiOdW91WG81nIkgEvJV3Pmz_E1wOvLeF3dk1mMSo0W4lr8ahdJTciI_pxuUpYQMpki8bpkqTlGFX8TvQPOc0UOmCPemahDcOFDYf7k6uTWdUfmbIuFAivTCdanR22-fcZ2AIfJ2IkzEqODL9meevZOAxIBL44axEH6JluemDoQJ1lIn3sD_tyn9Kt-Y0xo0H4WNDd6BS6u4fmx1YBfG4OPw5xMQ",4000,3000,null,null,null,null,null,null,[5264470]]
