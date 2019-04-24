@@ -166,6 +166,25 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   async: true
 });
 
+// Inject Style/Script
+hexo.extend.filter.register('after_post_render', data => {
+  logger.log('DEBUG filter', data.length);
+  if (ignore(data)) { return data; }
+
+  const config = margeConfig(hexo.config);
+  const $ = cheerio.load(data.content, {decodeEntities: false});
+
+  if (config.enableDefaultStyle) {
+    $('head').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
+    // integrity="sha512-xxxx=="
+  }
+
+  $('body').append(front.scriptHtml(config));
+
+  data.content = $('body').html();
+  return data;
+});
+
 // Copy Files
 if (margeConfig({}).enableDefaultStyle) {
   hexo.extend.generator.register('google-photos-album-css', locals => {
@@ -197,25 +216,6 @@ if (margeConfig({}).enableDefaultStyle) {
     };
   });
 }
-
-// Inject Style/Script
-hexo.extend.filter.register('after_post_render', data => {
-  logger.log('DEBUG filter', data.length);
-  if (ignore(data)) { return data; }
-
-  const config = margeConfig(hexo.config);
-  const $ = cheerio.load(data.content, {decodeEntities: false});
-
-  if (config.enableDefaultStyle) {
-    $('head').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
-    // integrity="sha512-xxxx=="
-  }
-
-  $('body').append(front.scriptHtml(config));
-
-  data.content = $.html();
-  return data;
-});
 
 // sample data
 // <meta name="og:site_name" content="Google Photos">

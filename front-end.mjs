@@ -40,11 +40,13 @@ function getClientSideScript(options) {
     .replace('LARGESIZETHRESHOLD', options.largeSizeThreshold)
     .replace('MEDIUMSIZEREGEXP', options.mediumSizeRegExp)
     .replace('LARGESIZE', 'options.largeSize')
-    .replace(/}$/m, '');
+    .replace(/}$/, '');
 
   // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
   // const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
-  return `<script>${stringify(addLoadEvent)}${content}</script>`;
+  return `<script>
+${stringify(addLoadEvent)}${content}</script>
+`;
 }
 
 exports.scriptHtml = getClientSideScript;
