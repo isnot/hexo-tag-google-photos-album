@@ -150,6 +150,7 @@ async function getImgHtml(images, options) {
 
 // Tag Plugin
 hexo.extend.tag.register('googlePhotosAlbum', args => {
+  logger.log('DEBUG tag', args.length);
   if (!args) { return; }
   let config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
@@ -169,7 +170,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 if (margeConfig({}).enableDefaultStyle) {
   hexo.extend.generator.register('google-photos-album-css', locals => {
     const config = margeConfig(locals.config);
-    // logger.log('DEBUG generator', locals);
+    logger.log('DEBUG generator', locals.length);
 
     const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
     const dist = pathFn.join(
@@ -198,7 +199,7 @@ if (margeConfig({}).enableDefaultStyle) {
 
 // Inject Style/Script
 hexo.extend.filter.register('after_post_render', data => {
-  // logger.log('DEBUG filter', data);
+  logger.log('DEBUG filter', data.length);
   if (ignore(data)) { return data; }
 
   const config = margeConfig(hexo.config);
