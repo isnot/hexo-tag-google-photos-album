@@ -148,7 +148,7 @@ function getImgHtml(images, options) {
 }
 
 function hasProperty(obj, prop) {
-  if (typeof obj !== 'obj' || obj === null) {
+  if (typeof obj !== 'object' || obj === null) {
     return undefined;
   }
   return Object.prototype.hasOwnProperty.call(obj, prop);
