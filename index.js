@@ -39,8 +39,9 @@ let local_settings = factory_defaults;
 
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (!args) { return; }
-  if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
-    local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
+  const config = this.config.googlePhotosAlbum;
+  if (typeof config === 'object' && config !== null) {
+    local_settings = Object.assign(factory_defaults, config);
   }
   local_settings = Object.assign(local_settings, {url: args[0]});
   local_settings.middleSizeRegExp = util.escapeRegExp(local_settings.middleSize);
@@ -58,9 +59,9 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 hexo.extend.filter.register('inject_ready', (inject) => {
-  // const _hexo = this;
-  if (typeof hexo.config.googlePhotosAlbum === 'object' && hexo.config.googlePhotosAlbum !== null) {
-    local_settings = Object.assign(factory_defaults, hexo.config.googlePhotosAlbum);
+  const config = this.config.googlePhotosAlbum;
+  if (typeof config === 'object' && config !== null) {
+    local_settings = Object.assign(factory_defaults, config);
   }
   if (local_settings.enableDefaultStyle) {
     const css = fs.createReadStream(local_settings.defaultStyle);
@@ -69,9 +70,9 @@ hexo.extend.filter.register('inject_ready', (inject) => {
   }
 
   const script_data = `<script>${getClientSideScript(local_settings)}</script>`;
+  inject.raw('body_end', script_data);
   // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
   // const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
-  inject.raw('body_begin', script_data);
   // inject.require('body_begin', module, opts);
 });
 
