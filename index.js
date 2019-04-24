@@ -185,7 +185,12 @@ if (margeConfig({}).enableDefaultStyle) {
     return {
       path: dist,
       data: _ => {
-        return fs.createReadStream(src);
+        logger.log('DEBUG fs', src);
+        try {
+          return fs.createReadStream(src);
+        } catch (e) {
+          throw new Error('google-photos-album: file error. ' + e);
+        }
       }
     };
   });
