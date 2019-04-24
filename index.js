@@ -163,7 +163,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 if (margeConfig({}).enableDefaultStyle) {
   hexo.extend.generator.register('google-photos-album-css', locals => {
     const config = margeConfig(locals.config);
-    logger.log('DEBUG generator', locals);
+    // logger.log('DEBUG generator', locals);
 
     const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
     const dist = pathFn.join(
@@ -187,7 +187,7 @@ if (margeConfig({}).enableDefaultStyle) {
 
 // Inject Style/Script
 hexo.extend.filter.register('after_post_render', data => {
-  logger.log('DEBUG filter', data);
+  // logger.log('DEBUG filter', data);
   if (ignore(data)) { return data; }
 
   const config = margeConfig(hexo.config);
