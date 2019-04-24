@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "npm install --save hexo-inject",
     "eslint": "eslint"
   },
   "repository": {
@@ -27,8 +26,7 @@
   "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
   "dependencies": {
     "got": "^9.6.0",
-    "hexo-fs": "^0.2.2",
-    "hexo-inject": "^1.0.0",
+    "hexo-fs": "^1.0.2",
     "hexo-util": "^0.6.3",
     "metascraper": "^5.1.1",
     "metascraper-description": "^5.1.0",

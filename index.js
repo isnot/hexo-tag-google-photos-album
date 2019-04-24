@@ -101,7 +101,7 @@ async function getTagHtml(options) {
   let props = '';
 
   if (hasProperty(og, 'image')) {
-    head_image = util.htmlTag('img', { src: og.image, class: 'og-image nolink' }, '');
+    head_image = util.htmlTag('img', { src: util.stripHTML(og.image), class: 'og-image nolink' }, '');
   }
 
   if (hasProperty(og, 'title')) {
