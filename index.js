@@ -188,17 +188,21 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
-hexo.extend.filter.register('after_render:html', function(str, data) {
-  logger.debug('google-photos-album: filter', data.path);
-  if (ignore(data.path)) { return str; }
+hexo.extend.filter.register('after_post_render', data => {
+  logger.debug('google-photos-album: filter', data.source);
+  if (ignore(data.source)) { return data; }
 
   const config = margeConfig(hexo.config);
+  // const $ = cheerio.load(data.content, {decodeEntities: false});
+  // $('body').prepend(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
+  // $('body').append(front.scriptHtml(config));
+  let myContent = data.content;
   if (config.enableDefaultStyle) {
-    str = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${str}`;
+    myContent = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${myContent}`;
     // integrity="sha512-xxxx=="
   }
-
-  return str + front.scriptHtml(config);
+  data.content = `${myContent}${front.scriptHtml(config)}`;
+  return data;
 });
 
 // Copy file
