@@ -2,20 +2,19 @@
 
 This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to embed albums from Google Photos.
 
-This plugin provide a ability to embed a Google Photos album for Hexo.
-
 ## Getting Started
 
 * (GitHub) [hexo-tag-google-photos-album](https://github.com/isnot/hexo-tag-google-photos-album)
 * (npm) TBD
-* (sample) TBD https://pages.isnot.jp/2019-04/13-image-test/
+* (sample) https://pages.isnot.jp/2019-04/13-image-test/
 
 ## Installation
 
 ```bash
 $ cd <path-to-your-blog-dir>
-$ npm install hexo-tag-google-photos-album hexo-inject --save
+$ npm install hexo-tag-google-photos-album --save
 ```
+
 ## Usage
 
 ### Settings
@@ -25,15 +24,16 @@ in \_config.yml
 ```yaml
 googlePhotosAlbum:
   descriptionLength: 140
-  maxPics: 999
   target: _blank
   rel: noopener
   className: google-photos-album-area
-  enableFactoryStyle: true
-  factoryStyle: /css/google_photos_album.css
-  large_param: =s1920-no
-  middle_param: =s720-no
-  small_param: =w225-no
+  enableDefaultStyle: true
+  defaultStyle: google_photos_album.css
+  largeSizeThreshold: 768
+  largeSize:  =s1920-no
+  mediumSize: =s720-no
+  smallSize:  =w225-no
+  maxPics: 999
   generateAlways: false
 ```
 
@@ -46,11 +46,12 @@ You can use this plugin with no config.
 | target            | link elenment's target property.             | \_blank |
 | rel               | link element's rel property.                | noopener |
 | className         | className for photos and descriptions.        | google-photos-album-area |
-| enableFactoryStyle | if set to false, you may use own styles by your way. | true |
-| factoryStyle      | default style and its filename.               | /css/google\_photos\_album.css |
-| large\_param      | image's size to link                         | =s1920-no |
-| middle\_param      | image's size to link in case of mobile        | =s720-no |
-| small\_param       | thumbnail's size                            | =w225-no |
+| enableDefaultStyle | if set to false, you may use own styles by your way. | true |
+| defaultStyle      | default style and its filename.               | /css/google\_photos\_album.css |
+| largeSizeThreshold | for responsive                              | 768 |
+| largeSize         | image's size to link                         | =s1920-no |
+| mediumSize        | image's size to link in case of mobile        | =s720-no |
+| smallSize         | thumbnail's size                             | =w225-no |
 | maxPics           | (experimental)limit {Number} of embeded phtos. | 999   |
 | generateAlways     | (experimental)                              | false |
 
@@ -60,19 +61,17 @@ You can use this plugin with no config.
 {% googlePhotosAlbum url %}
 ```
 
-Example:
+- @param url {URL} Google Photos' share url.
+  You can also use shortened one.
+
+Example
 ```
-{% googlePhotosAlbum  %}
+{% googlePhotosAlbum https://photos.google.com/share/AF1QipM-qmCtmxuhoUj5Y2lP7OUWe9FH1KjHqVuDokH9IxM1mj3ayWcbHxNa43NfaBLe2A?key=SUIyM0k0RkQ4OTY4elZmQVBwNDBFOFhJZVZwRTBn %}
 ```
 
 ## Custamize
 
-[Hexo-light-gallery](https://github.com/lzane/hexo-light-gallery)
-
-
-
-- @param url {URL} Google Photos' share url.
-  You can also use shortened one.
+use [hexo-light-gallery](https://github.com/lzane/hexo-light-gallery)
 
 ## Thanks
 
