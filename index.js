@@ -35,21 +35,20 @@ const factory_defaults = {
   url: '',
   userStyle: ''
 };
-let local_settings = factory_defaults;
 
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   console.log('DEBUG tag', typeof this, Object.keys(this));
   if (!args) { return; }
-  const config = this.config.googlePhotosAlbum;
+  let config = this.config.googlePhotosAlbum;
   if (typeof config === 'object' && config !== null) {
-    local_settings = Object.assign(factory_defaults, config);
+    config = Object.assign(factory_defaults, config);
   }
-  local_settings = Object.assign(local_settings, {url: args[0]});
-  local_settings.middleSizeRegExp = util.escapeRegExp(local_settings.middleSize);
+  config = Object.assign(config, {url: args[0]});
+  config.middleSizeRegExp = util.escapeRegExp(config.middleSize);
 
-  if (!local_settings.generateAlways && isDev()) { return; }
+  if (!config.generateAlways && isDev()) { return; }
 
-  return getTagHtml(local_settings).then(tag => {
+  return getTagHtml(config).then(tag => {
     return tag;
   }).catch(err => {
     console.log('google-photos-album: Something went wrong! ', err);
@@ -59,19 +58,20 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   async: true
 });
 
-hexo.extend.filter.register('inject_ready', (inject) => {
-  console.log('DEBUG inject_ready', typeof this, Object.keys(this));
-  const config = this.config.googlePhotosAlbum;
+// inject_ready
+hexo.extend.filter.register('after_generate', (post) => {
+  console.log('DEBUG filter', typeof this, Object.keys(this), Object.keys(post));
+  let config = this.config.googlePhotosAlbum;
   if (typeof config === 'object' && config !== null) {
-    local_settings = Object.assign(factory_defaults, config);
+    config = Object.assign(factory_defaults, config);
   }
-  if (local_settings.enableDefaultStyle) {
-    const css = fs.createReadStream(local_settings.defaultStyle);
+  if (config.enableDefaultStyle) {
+    const css = fs.createReadStream(config.defaultStyle);
     // inject.style('head_end', {media: 'screen'}, css);
-    // inject.link('head_end', { src: local_settings.defaultStyle, rel: 'stylesheet' }, opts);
+    // inject.link('head_end', { src: config.defaultStyle, rel: 'stylesheet' }, opts);
   }
 
-  const script_data = `<script>${getClientSideScript(local_settings)}</script>`;
+  const script_data = `<script>${getClientSideScript(config)}</script>`;
   // inject.raw('body_end', script_data);
   // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
   // const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
