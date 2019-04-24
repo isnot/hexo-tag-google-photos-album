@@ -148,7 +148,7 @@ async function getImgHtml(images, options) {
 
 async function copyCss() {
   const config = margeConfig(hexo.config);
-  const css_filename = pathFn.basename(config.defaultStyle).replace(/[^\w-]/g, '');
+  const css_filename = pathFn.basename(config.defaultStyle).replace(/[^\w-.]/g, '');
   const dest = pathFn.join(
     hexo.public_dir,
     'css',
