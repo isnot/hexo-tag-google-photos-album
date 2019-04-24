@@ -1,7 +1,7 @@
 /**
 * hexo-tag-google-photos-album
 * https://github.com/isnot/hexo-tag-google-photos-album.git
-* Copyright (c) 2019 isnot
+* Copyright (c) 2019 isnot (aka ISHIDA Naoto)
 * Licensed under the MIT license.
 * Syntax:
 * {% googlePhotosAlbum url %}
@@ -11,13 +11,21 @@
 const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
+const logger = hexo.log || console;
 const got = require('got');
+const cheerio = require('cheerio');
 const metascraper = require('metascraper')([
   require('metascraper-description')(),
   require('metascraper-image')(),
   require('metascraper-title')(),
   require('metascraper-url')()
 ]);
+// CAUTION
+// metascraper have XSS vulnerabilities and no patch available.
+// More info https://nodesecurity.io/advisories/603
+// DO NOT forget escape the acquired contents or its results.
+
+const front = require('./front-end.mjs');
 
 const factory_defaults = {
   descriptionLength: 140,
@@ -28,92 +36,61 @@ const factory_defaults = {
   defaultStyle: 'google_photos_album.css',
   largeSizeThreshold: 768,
   largeSize: '=s1920-no',
-  middleSize: '=s720-no',
+  mediumSize: '=s720-no',
   smallSize: '=w225-no',
   generateAlways: false,
   maxPics: 999,
-  url: '',
-  userStyle: ''
+  url: ''
 };
 
-hexo.extend.tag.register('googlePhotosAlbum', args => {
-  console.log('DEBUG tag', args);
-  if (!args) { return; }
+function hasProperty(obj, prop) {
+  if (typeof obj !== 'object' || obj === null) {
+    return undefined;
+  }
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+function isDev() {
+  if (process.argv.length > 2 && (process.argv[2].match(/^d/) || process.argv[2].match(/^g/))) {
+    // logger.log('hexo-env: production');
+    return false;
+  }
+  // logger.log('hexo-env: development');
+  return true;
+}
+
+function ignore(data) {
+  var source = data.source;
+  var ext = source.substring(source.lastIndexOf('.')).toLowerCase();
+  return ['.html', '.htm'].indexOf(ext) > -1;
+}
+
+function margeConfig(config_yml) {
   let config = {};
-  if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
-    config = hexo.config.googlePhotosAlbum;
+  if (hasProperty(config_yml, 'googlePhotosAlbum')) {
+    config = config_yml.googlePhotosAlbum;
   }
   if (typeof config === 'object' && config !== null) {
     config = Object.assign(factory_defaults, config);
   }
-  config = Object.assign(config, {url: args[0]});
-  config.middleSizeRegExp = util.escapeRegExp(config.middleSize);
-
-  if (!config.generateAlways && isDev()) { return; }
-
-  return getTagHtml(config).then(tag => {
-    return tag;
-  }).catch(err => {
-    console.log('google-photos-album: Something went wrong! ', err);
-    return '';
-  });
-}, {
-  async: true
-});
-
-// inject_ready
-hexo.extend.filter.register('after_generate', post => {
-  console.log('DEBUG filter', post);
-  let config = {};
-  if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
-    config = hexo.config.googlePhotosAlbum;
-  }
-  if (typeof config === 'object' && config !== null) {
-    config = Object.assign(factory_defaults, config);
-  }
-  if (config.enableDefaultStyle) {
-    const css = pathFn.join(
-      hexo.base_dir,
-      'node_modules',
-      'hexo-tag-google-photos-album',
-      'css',
-      config.defaultStyle.replace(/\//g, '')
-    );
-    console.log('###css path###', css);
-
-    fs.readFile(css).then(content => {
-      console.log('###css###', content);
-      return content;
-    }).catch(e => {
-      throw new Error('google-photos-album: file error: ', e);
-    });
-
-    // inject.style('head_end', {media: 'screen'}, css);
-    // inject.link('head_end', { src: config.defaultStyle, rel: 'stylesheet' }, opts);
-  }
-
-  const script_data = `<script>${getClientSideScript(config)}</script>`;
-  // inject.raw('body_end', script_data);
-  // const googlePhotosAlbum_opt = ${JSON.stringify(options)};
-  // const googlePhotosAlbum_images = ${JSON.stringify(image_urls)};
-  // inject.require('body_begin', module, opts);
-});
+  return config;
+}
 
 async function getTagHtml(options) {
-  const { body: html, url } = await got(options.url);
-  // try {
-  // } catch (error) {
-  //   console.log(error.response.body);
-  // }
+  const { body: html, url } = await got(options.url).catch(error => {
+    throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
+  });
 
-  const og = await metascraper({ html, url });
-  console.log('google-photos-album:', og);
+  const og = await metascraper({ html, url }).catch(e => {
+    throw new Error('google-photos-album: I can not get metadata. ' + e);
+  });
+  logger.log('google-photos-album:', og);
   if (typeof og !== 'object' || og === null) {
-    throw new Error('google-photos-album: I can not get metadata.');
+    throw new Error('google-photos-album: something went wrong!');
   }
 
   const image_urls = await getImageUrls(html, options.maxPics);
-  console.log('google-photos-album:', image_urls);
+  logger.log(`google-photos-album: found ${image_urls.length} images.`);
   if (!Array.isArray(image_urls) || image_urls.length < 1) {
     throw new Error('google-photos-album: I can not get images via scraping.');
   }
@@ -136,14 +113,14 @@ async function getTagHtml(options) {
 
   const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
-  const images_html = getImgHtml(image_urls, options);
+  const images_html = await getImgHtml(image_urls, options);
   const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
-  return contents;
+  return await contents;
 }
 
-function getImageUrls(html, max) {
+async function getImageUrls(html, max) {
   if (typeof html !== 'string' || html === '') {
-    return [];
+    throw new Error('google-photos-album: need html.');
   }
   const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
   let matched = [];
@@ -153,58 +130,79 @@ function getImageUrls(html, max) {
       matched.push(...myArray.slice(1));
     }
   }
-  return matched;
+  return await matched;
 }
 
-function getImgHtml(images, options) {
-  return '\n<div class="google-photos-album-images clearfix">' + images.map(url => {
-    return `<a href="${url}${options.middleSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}"></a>`;
-  }).join('\n') + '</div>\n';
-}
-
-function hasProperty(obj, prop) {
-  if (typeof obj !== 'object' || obj === null) {
-    return undefined;
-  }
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-function isDev() {
-  if (process.argv.length > 2 && (process.argv[2].match(/^d/) || process.argv[2].match(/^g/))) {
-    // console.log('hexo-env: production');
-    return false;
-  }
-  // console.log('hexo-env: development');
-  return true;
-}
-
-function getClientSideScript(options) {
-  return `
-function addLoadEvent(func) {
-  const oldonload = window.onload;
-  if (typeof window.onload !== 'function') {
-    window.onload = func;
-  } else {
-    window.onload = () => {
-      oldonload();
-      func();
-    };
-  }
-}
-addLoadEvent(() => {
+async function getImgHtml(images, options) {
   try {
-    if (window.innerWidth < options.largeSizeThreshold) {
-      return;
-    }
-    let imgs = document.body.querySelectorAll('.google-photos-album-images a');
-    for (let anchor of imgs) {
-      anchor.href = anchor.href.replace(/${options.middleSizeRegExp}/i, '${options.largeSize}');
-    }
-  } catch(e) {
-    console.log(e);
+    const html = '\n<div class="google-photos-album-images clearfix">' + images.map(url => {
+      return `<a href="${url}${options.mediumSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}"></a>`;
+    }).join('\n') + '</div>\n';
+    return await html;
+  } catch (e) {
+    throw new Error('google-photos-album: miss.');
   }
-});`;
 }
+
+// Tag Plugin
+hexo.extend.tag.register('googlePhotosAlbum', args => {
+  if (!args) { return; }
+  let config = margeConfig(hexo.config);
+  if (!config.generateAlways && isDev()) { return; }
+
+  config.url = args[0];
+  config.mediumSizeRegExp = util.escapeRegExp(config.mediumSize);
+  (async _ => {
+    return await getTagHtml(config);
+  })();
+}, {
+  async: true
+});
+
+// Copy Files
+if (margeConfig({}).enableDefaultStyle) {
+  hexo.extend.generator.register('google-photos-album-css', locals => {
+    const config = margeConfig(locals.config);
+    logger.log('DEBUG generator', locals);
+
+    const css_filename = pathFn.basename(config.defaultStyle).replace(/[\w-]/g, '');
+    const dist = pathFn.join(
+      hexo.public_dir,
+      'css',
+      pathFn.basename(css_filename, pathFn.extname(css_filename)) + '.css'
+    );
+    const src = pathFn.join(
+      hexo.plugin_dir,
+      'hexo-tag-google-photos-album/css',
+      css_filename
+    );
+    return {
+      path: dist,
+      data: _ => {
+        return fs.createReadStream(src);
+      }
+    };
+  });
+}
+
+// Inject Style/Script
+hexo.extend.filter.register('after_post_render', data => {
+  logger.log('DEBUG filter', data);
+  if (ignore(data)) { return data; }
+
+  const config = margeConfig(hexo.config);
+  const $ = cheerio.load(data.content, {decodeEntities: false});
+
+  if (config.enableDefaultStyle) {
+    $('head').append(`<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`);
+    // integrity="sha512-xxxx=="
+  }
+
+  $('body').append(front.scriptHtml(config));
+
+  data.content = $.html();
+  return data;
+});
 
 // sample data
 // <meta name="og:site_name" content="Google Photos">
