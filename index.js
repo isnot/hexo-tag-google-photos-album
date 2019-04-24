@@ -81,7 +81,7 @@ hexo.extend.filter.register('after_generate', post => {
     );
     console.log('###css path###', css);
 
-    fs.readFileAsync(css).then(content => {
+    fs.readFile(css).then(content => {
       console.log('###css###', content);
       return content;
     }).catch(e => {
