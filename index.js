@@ -63,7 +63,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
 // inject_ready
 hexo.extend.filter.register('after_generate', post => {
-  console.log('DEBUG filter', Object.keys(post));
+  console.log('DEBUG filter', post);
   let config = {};
   if (hasProperty(hexo.config, 'googlePhotosAlbum')) {
     config = hexo.config.googlePhotosAlbum;
