@@ -8,7 +8,7 @@
 **/
 
 'use strict';
-// const pathFn = require('path');
+const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
 const got = require('got');
@@ -25,7 +25,7 @@ const factory_defaults = {
   rel: 'noopener',
   className: 'google-photos-album-area',
   enableDefaultStyle: true,
-  defaultStyle: './css/google_photos_album.css',
+  defaultStyle: 'google_photos_album.css',
   largeSizeThreshold: 768,
   largeSize: '=s1920-no',
   middleSize: '=s720-no',
@@ -72,7 +72,14 @@ hexo.extend.filter.register('after_generate', post => {
     config = Object.assign(factory_defaults, config);
   }
   if (config.enableDefaultStyle) {
-    fs.readFile(config.defaultStyle, content => {
+    const css = pathFn.join(
+      hexo.base_dir,
+      'node_modules'
+      'hexo-tag-google-photos-album',
+      'css',
+      config.defaultStyle.replace(/\//g, '')
+    );
+    fs.readFile(css, content => {
       console.log('###css###', content);
     }).catch(e => {
       throw new Error('google-photos-album: file error: ', e);
