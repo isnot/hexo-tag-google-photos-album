@@ -63,9 +63,9 @@ function isPageOrPost() {
   // if (hexo.extend.helper.store.is_page()) {
   // }
 
-  logger.log('google_photos_album: DEV', typeof hexo.extend.helper.store.url_for, typeof hexo.extend.helper.store.is_page, typeof hexo.extend.helper.store.is_post);
   logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
-  logger.log('google_photos_album: DEV permalink', util.permalink(hexo.config.permalink));
+  logger.log('google_photos_album: DEV permalink', util.Permalink(hexo.config.permalink));
+  logger.log('google_photos_album: DEV', hexo.extend.helper.store.url_for(), hexo.extend.helper.store.is_page(), hexo.extend.helper.store.is_post());
 
   try {
     if (hexo.helper.is_page || hexo.helper.is_post) {
