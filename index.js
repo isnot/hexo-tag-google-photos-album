@@ -63,11 +63,8 @@ function isPageOrPost() {
   // if (hexo.extend.helper.store.is_page()) {
   // }
 
-  const {Permalink} = util;
-  const pe = new Permalink(hexo.config.permalink);
   logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
-  logger.log('google_photos_album: DEV permalink', pe.stringify());
-  logger.log('google_photos_album: DEV url', hexo.url);
+  logger.log('google_photos_album: DEV id', hexo.post.id);
 
   // try {
   //   if (hexo.helper.is_page || hexo.helper.is_post) {
