@@ -61,23 +61,18 @@ function isDev() {
 
 function isPageOrPost() {
 
-  if (hasProperty(hexo.post, 'context')) {
-    if (hasProperty(hexo.post.context, 'helper')) {
-      logger.log('google_photos_album: DEV found  helper');
-      if (hasProperty(hexo.post.context.helper, 'is_page')) {
-        logger.log('google_photos_album: DEV found is_page');
-      }
-      if (hasProperty(hexo.post.context.helper, 'is_post')) {
-        logger.log('google_photos_album: DEV found is_post');
-      }
+  if (hasProperty(hexo.post, 'helper')) {
+    logger.log('google_photos_album: DEV found  helper');
+    if (hasProperty(hexo.post.helper, 'is_page')) {
+      logger.log('google_photos_album: DEV found is_page');
+    }
+    if (hasProperty(hexo.post.helper, 'is_post')) {
+      logger.log('google_photos_album: DEV found is_post');
     }
   }
 
-  if (hasProperty(hexo.post, 'permalink')) {
-    logger.log('google_photos_album: DEV found permalink');
-  }
-
-  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.post), Object.keys(hexo.post.context));
+  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.route), Object.keys(hexo.theme));
+  logger.log('google_photos_album: DEV permalink', hexo.post.permalink);
 
   try {
     if (hexo.helper.is_page || hexo.helper.is_post) {
