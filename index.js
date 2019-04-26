@@ -61,25 +61,23 @@ function isDev() {
 
 function isPageOrPost() {
 
-  if (hasProperty(hexo, 'helper')) {
-    logger.log('google_photos_album: DEV found  helper');
+  if (hasProperty(hexo.post, 'context')) {
+    if (hasProperty(hexo.post.context, 'helper')) {
+      logger.log('google_photos_album: DEV found  helper');
+      if (hasProperty(hexo.post.context.helper, 'is_page')) {
+        logger.log('google_photos_album: DEV found is_page');
+      }
+      if (hasProperty(hexo.post.context.helper, 'is_post')) {
+        logger.log('google_photos_album: DEV found is_post');
+      }
+    }
   }
 
-  if (hasProperty(hexo.helper, 'is_page')) {
-    logger.log('google_photos_album: DEV found is_page');
-  }
-  if (hasProperty(hexo.helper, 'is_post')) {
-    logger.log('google_photos_album: DEV found is_post');
+  if (hasProperty(hexo.post, 'permalink')) {
+    logger.log('google_photos_album: DEV found permalink');
   }
 
-  if (hasProperty(hexo, 'locals')) {
-    logger.log('google_photos_album: DEV found locals', Object.keys(hexo.locals));
-  }
-  if (hasProperty(hexo.locals, 'page')) {
-    logger.log('google_photos_album: DEV found locals.page');
-  }
-
-  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.env), Object.keys(hexo.post));
+  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.post), Object.keys(hexo.post.context));
 
   try {
     if (hexo.helper.is_page || hexo.helper.is_post) {
