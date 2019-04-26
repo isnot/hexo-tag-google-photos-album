@@ -60,6 +60,29 @@ function isDev() {
 }
 
 function isPageOrPost() {
+
+  if (hasProperty(hexo, 'helper')) {
+    logger.log('google_photos_album: DEV found  helper');
+  }
+
+  if (hasProperty(hexo.helper, 'is_page')) {
+    logger.log('google_photos_album: DEV found is_page');
+  }
+  if (hasProperty(hexo.helper, 'is_post')) {
+    logger.log('google_photos_album: DEV found is_post');
+  }
+
+  if (hasProperty(hexo, 'locals')) {
+    logger.log('google_photos_album: DEV found locals');
+  }
+  if (hasProperty(hexo.locals, 'page')) {
+    logger.log('google_photos_album: DEV found locals.page');
+  }
+
+  if (hasProperty(hexo, 'page')) {
+    logger.log('google_photos_album: DEV found hexo.page');
+  }
+
   try {
     if (hexo.helper.is_page || hexo.helper.is_post) {
       return true;
