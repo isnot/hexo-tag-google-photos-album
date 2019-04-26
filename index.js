@@ -63,18 +63,20 @@ function isPageOrPost() {
   // if (hexo.extend.helper.store.is_page()) {
   // }
 
+  const {Permalink} = util;
+  const pe = new Permalink(hexo.config.permalink);
   logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
-  logger.log('google_photos_album: DEV permalink', util.Permalink(hexo.config.permalink));
-  logger.log('google_photos_album: DEV', hexo.extend.helper.store.url_for(), hexo.extend.helper.store.is_page(), hexo.extend.helper.store.is_post());
+  logger.log('google_photos_album: DEV permalink', pe.stringify());
+  logger.log('google_photos_album: DEV url', hexo.url);
 
-  try {
-    if (hexo.helper.is_page || hexo.helper.is_post) {
-      return true;
-    }
-  } catch (e) {
-    throw new Error('I can not detect what type content is. ', e);
-  }
-  return false;
+  // try {
+  //   if (hexo.helper.is_page || hexo.helper.is_post) {
+  //     return true;
+  //   }
+  // } catch (e) {
+  //   throw new Error('I can not detect what type content is. ', e);
+  // }
+  return false; // mock
 }
 
 function ignore(source) {
