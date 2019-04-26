@@ -37,6 +37,7 @@ const factory_defaults = {
   largeSize: '=s1920-no',
   mediumSize: '=s720-no',
   smallSize: '=w225-no',
+  tip_on_top: true,
   generateAlways: false,
   maxPics: 999,
   url: ''
@@ -56,6 +57,17 @@ function isDev() {
   }
   // logger.log('hexo-env: development');
   return true;
+}
+
+function isPageOrPost() {
+  try {
+    if (hexo.helper.is_page || hexo.helper.is_post) {
+      return true;
+    }
+  } catch (e) {
+    throw new Error('I can not detect what type content is. ', e);
+  }
+  return false;
 }
 
 function ignore(source) {
@@ -95,13 +107,18 @@ async function getTagHtml(options) {
     throw new Error('google-photos-album: I can not get images via scraping.');
   }
 
-  let head_image = '';
+  const cover_image = getCoverImageHtml(og, hexo.page, options);
+  const cover_title = getCoverTitleHtml(og, url, options);
+  const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title);
+  const images_html = await getImgHtml(image_urls, options).catch(e => {
+    throw new Error('google-photos-album: I can not format html.');
+  });
+  const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
+  return await contents;
+}
+
+function getCoverTitleHtml(og, url, options) {
   let props = '';
-
-  if (hasProperty(og, 'image')) {
-    head_image = util.htmlTag('img', { src: util.stripHTML(og.image), class: 'og-image nolink' }, '');
-  }
-
   if (hasProperty(og, 'title')) {
     props += util.htmlTag('span', { class: 'og-title' }, util.escapeHTML(og.title));
   }
@@ -111,13 +128,18 @@ async function getTagHtml(options) {
     props += util.htmlTag('span', { class: 'og-description' }, util.escapeHTML(description));
   }
 
-  const alink = util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
-  const metadatas = util.htmlTag('div', { class: 'metadatas' }, head_image + alink);
-  const images_html = await getImgHtml(image_urls, options).catch(e => {
-    throw new Error('google-photos-album: I can not format html.');
-  });
-  const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
-  return await contents;
+  return util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
+}
+
+function getCoverImageHtml(og, page, options) {
+  let image_html = '';
+  if (hasProperty(og, 'image')) {
+    image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: 'og-image nolink' }, '');
+  }
+  if (!options.tip_on_top || isPageOrPost() || !hasProperty(page, 'permalink')) {
+    return image_html;
+  }
+  return util.htmlTag('a', { href: page.permalink, class: 'google-photos-album-cover-image-link' }, image_html);
 }
 
 async function getImageUrls(html, max) {
@@ -136,6 +158,10 @@ async function getImageUrls(html, max) {
 }
 
 async function getImgHtml(images, options) {
+  if (options.tip_on_top && !isPageOrPost()) {
+    logger.debug('google-photos-album: show only album cover image, without other.');
+    return '';
+  }
   try {
     const html = '\n<div class="google-photos-album-images clearfix">' + images.map(url => {
       return `<a href="${url}${options.mediumSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}"></a>`;
