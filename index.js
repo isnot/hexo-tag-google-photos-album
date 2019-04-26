@@ -73,14 +73,13 @@ function isPageOrPost() {
   }
 
   if (hasProperty(hexo, 'locals')) {
-    logger.log('google_photos_album: DEV found locals');
-    logger.log(hexo.locals.toObject());
+    logger.log('google_photos_album: DEV found locals', hexo.locals.toObject());
   }
   if (hasProperty(hexo.locals, 'page')) {
     logger.log('google_photos_album: DEV found locals.page');
   }
 
-  logger.log(Object.keys(hexo));
+  logger.log('google_photos_album: DEV', Object.keys(hexo));
 
   try {
     if (hexo.helper.is_page || hexo.helper.is_post) {
