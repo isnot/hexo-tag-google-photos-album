@@ -63,8 +63,7 @@ function isPageOrPost() {
   // if (hexo.extend.helper.store.is_page()) {
   // }
 
-  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
-  logger.log('google_photos_album: DEV id', hexo.post.id);
+  // logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
 
   // try {
   //   if (hexo.helper.is_page || hexo.helper.is_post) {
@@ -73,7 +72,7 @@ function isPageOrPost() {
   // } catch (e) {
   //   throw new Error('I can not detect what type content is. ', e);
   // }
-  return false; // mock
+  return true; // mock
 }
 
 function ignore(source) {
