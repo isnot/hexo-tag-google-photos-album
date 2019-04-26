@@ -61,15 +61,15 @@ function isDev() {
 
 function isPageOrPost() {
 
-  if (hasProperty(hexo.extend.helper, 'is_page')) {
-    logger.log('google_photos_album: DEV found is_page');
+  if (hexo.extend.helper.store.is_page()) {
+    logger.log('google_photos_album: DEV this is page');
   }
-  if (hasProperty(hexo.extend.helper, 'is_post')) {
-    logger.log('google_photos_album: DEV found is_post');
+  if (hexo.extend.helper.store.is_post()) {
+    logger.log('google_photos_album: DEV this is post');
   }
+  logger.log('google_photos_album: DEV', hexo.extend.helper.store.url_for('./'));
 
   logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
-  logger.log('google_photos_album: DEV', hexo.post.path);
 
 
   try {
