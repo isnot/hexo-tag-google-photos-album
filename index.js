@@ -71,8 +71,8 @@ function isPageOrPost() {
     }
   }
 
-  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.route), Object.keys(hexo.theme));
-  logger.log('google_photos_album: DEV permalink', hexo.post.permalink);
+  logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.route.routes), Object.keys(hexo.render));
+  logger.log('google_photos_album: DEV', hexo.render.toString());
 
   try {
     if (hexo.helper.is_page || hexo.helper.is_post) {
