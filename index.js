@@ -112,8 +112,8 @@ async function getTagHtml(options) {
     throw new Error('google-photos-album: I can not get images via scraping.');
   }
 
-  const cover_image = getCoverImageHtml(og, hexo.page, options);
-  const cover_title = getCoverTitleHtml(og, url, options);
+  const cover_image = getCoverImageHtml(og, hexo.page, options) || '';
+  const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
     throw new Error('google-photos-album: I can not format html.');
