@@ -160,15 +160,17 @@ async function getImageUrls(html, max) {
 }
 
 async function getImgHtml(images, options) {
-  if (!Array.isArray(images)) {
-    throw new Error('google-photos-album: I can not get images via scraping.');
+  let urls = images;
+  if (Array.isArray(images)) {
+    logger.info('google-photos-album: I can not get images via scraping.');
+    urls = [];
   }
   if (options.tip_on_top && !isPageOrPost()) {
     logger.debug('google-photos-album: show only album cover image, without other.');
     return '';
   }
   try {
-    const html = '\n<div class="google-photos-album-images clearfix">' + images.map(url => {
+    const html = '\n<div class="google-photos-album-images clearfix">' + urls.map(url => {
       return `<a href="${url}${options.mediumSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}"></a>`;
     }).join('\n') + '</div>\n';
     return await html;
