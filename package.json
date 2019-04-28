@@ -1,7 +1,7 @@
 {
   "name": "hexo-tag-google-photos-album",
   "version": "1.0.1",
-  "description": "This is a Tag plugin for Hexo. It provides the ability to embed albums from Google Photos.",
+  "description": "This is a Tag plugin for Hexo. It provides the ability to embed photo albums from Google Photos.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

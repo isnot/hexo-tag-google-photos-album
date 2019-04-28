@@ -95,6 +95,7 @@ async function getTagHtml(options) {
   const { body: html, url } = await got(options.url).catch(error => {
     throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
   });
+  logger.info('google-photos-album: got html from Google Phots. ', util.stripHTML(html));
 
   const og = await metascraper({ html, url }).catch(e => {
     throw new Error('google-photos-album: I can not get metadata. ' + e);

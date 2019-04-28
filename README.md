@@ -1,6 +1,6 @@
 # hexo-tag-google-photos-album
 
-This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to embed albums from Google Photos.
+This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to embed photo albums from Google Photos.
 
 ## Getting Started
 
@@ -69,7 +69,7 @@ Example
 {% googlePhotosAlbum https://photos.google.com/share/AF1QipM-qmCtmxuhoUj5Y2lP7OUWe9FH1KjHqVuDokH9IxM1mj3ayWcbHxNa43NfaBLe2A?key=SUIyM0k0RkQ4OTY4elZmQVBwNDBFOFhJZVZwRTBn %}
 ```
 
-## Custamize
+## Customize
 
 use [hexo-light-gallery](https://github.com/lzane/hexo-light-gallery)
 
