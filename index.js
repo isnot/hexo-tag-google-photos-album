@@ -161,7 +161,7 @@ async function getImageUrls(html, max) {
 
 async function getImgHtml(images, options) {
   let urls = images;
-  if (Array.isArray(images)) {
+  if (!Array.isArray(images)) {
     logger.info('google-photos-album: I can not get images via scraping.');
     urls = [];
   }
