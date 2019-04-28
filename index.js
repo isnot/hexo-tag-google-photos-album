@@ -95,12 +95,11 @@ async function getTagHtml(options) {
   const { body: html, url } = await got(options.url).catch(error => {
     throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
   });
-  logger.info('google-photos-album: got html from Google Phots. ', html.length);
 
   const og = await metascraper({ html, url }).catch(e => {
     throw new Error('google-photos-album: I can not get metadata. ' + e);
   });
-  logger.log('google-photos-album:', og);
+  logger.info('google-photos-album: got html from Google Phots. ', og);
   if (typeof og !== 'object' || og === null) {
     throw new Error('google-photos-album: something went wrong!');
   }
@@ -174,7 +173,7 @@ async function getImgHtml(images, options) {
     }).join('\n') + '</div>\n';
     return await html;
   } catch (e) {
-    throw new Error('google-photos-album: miss.');
+    throw new Error('google-photos-album: miss images.');
   }
 }
 
@@ -209,7 +208,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
   config.url = args[0];
   return getTagHtml(config).catch(e => {
-    throw new Error('google-photos-album: miss.' + e);
+    throw new Error('google-photos-album: failure.' + e);
   });
 }, {
   async: true
