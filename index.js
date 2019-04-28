@@ -124,12 +124,12 @@ async function getTagHtml(options) {
 
 function getCoverTitleHtml(og, url, options) {
   let props = '';
-  if (hasProperty(og, 'title')) {
+  if (hasProperty(og, 'title') && og.title) {
     props += util.htmlTag('span', { class: 'og-title' }, util.escapeHTML(og.title));
   }
 
-  if (hasProperty(og, 'description')) {
-    const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '});
+  if (hasProperty(og, 'description') && og.description) {
+    const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '}) || '';
     props += util.htmlTag('span', { class: 'og-description' }, util.escapeHTML(description));
   }
 
