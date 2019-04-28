@@ -108,9 +108,6 @@ async function getTagHtml(options) {
     throw new Error('google-photos-album: I can not get images.' + e);
   });
   logger.log(`google-photos-album: found ${image_urls.length} images.`);
-  if (!Array.isArray(image_urls) || image_urls.length < 1) {
-    throw new Error('google-photos-album: I can not get images via scraping.');
-  }
 
   const cover_image = getCoverImageHtml(og, hexo.page, options) || '';
   const cover_title = getCoverTitleHtml(og, url, options) || '';
@@ -163,6 +160,9 @@ async function getImageUrls(html, max) {
 }
 
 async function getImgHtml(images, options) {
+  if (!Array.isArray(images)) {
+    throw new Error('google-photos-album: I can not get images via scraping.');
+  }
   if (options.tip_on_top && !isPageOrPost()) {
     logger.debug('google-photos-album: show only album cover image, without other.');
     return '';
