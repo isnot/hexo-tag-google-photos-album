@@ -59,22 +59,6 @@ function isDev() {
   return true;
 }
 
-function isPageOrPost() {
-  // if (hexo.extend.helper.store.is_page()) {
-  // }
-
-  // logger.log('google_photos_album: DEV', Object.keys(hexo), Object.keys(hexo.extend), Object.keys(hexo.extend.helper.store));
-
-  // try {
-  //   if (hexo.helper.is_page || hexo.helper.is_post) {
-  //     return true;
-  //   }
-  // } catch (e) {
-  //   throw new Error('I can not detect what type content is. ', e);
-  // }
-  return true; // mock
-}
-
 function ignore(source) {
   var ext = source.substring(source.lastIndexOf('.')).toLowerCase();
   return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
@@ -112,9 +96,9 @@ async function getTagHtml(options) {
   const image_urls = await getImageUrls(html, options.maxPics).catch(e => {
     throw new Error('google-photos-album: found no images.' + e);
   });
-  logger.log(`google-photos-album: found ${image_urls.length} images.`, post.path);
+  logger.log(`google-photos-album: found ${image_urls.length} images.`);
 
-  const cover_image = getCoverImageHtml(og, hexo.page, options) || '';
+  const cover_image = getCoverImageHtml(og) || '';
   const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
@@ -138,15 +122,12 @@ function getCoverTitleHtml(og, url, options) {
   return util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
 }
 
-function getCoverImageHtml(og, page, options) {
+function getCoverImageHtml(og) {
   let image_html = '';
   if (hasProperty(og, 'image')) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: 'og-image nolink' }, '');
   }
-  if (!options.tip_on_top || isPageOrPost() || !hasProperty(page, 'permalink')) {
-    return image_html;
-  }
-  return util.htmlTag('a', { href: page.permalink, class: 'google-photos-album-cover-image-link' }, image_html);
+  return image_html;
 }
 
 async function getImageUrls(html, max) {
@@ -169,10 +150,6 @@ async function getImgHtml(images, options) {
   if (!Array.isArray(images)) {
     logger.info('google-photos-album: I can not get images via scraping.');
     urls = [];
-  }
-  if (options.tip_on_top && !isPageOrPost()) {
-    logger.debug('google-photos-album: show only album cover image, without other.');
-    return '';
   }
   try {
     const html = '\n<div class="google-photos-album-images clearfix">' + urls.map(url => {
