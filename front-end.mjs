@@ -22,6 +22,10 @@ function registerToLoadEvent() {
       for (let anchor of imgs) {
         anchor.href = anchor.href.replace(/MEDIUMSIZEREGEXP/i, 'LARGESIZE');
       }
+      imgs = document.body.querySelectorAll('a.google-photos-album-image');
+      for (let anchor of imgs) {
+        anchor.href = anchor.href.replace(/MEDIUMSIZEREGEXP/i, 'LARGESIZE');
+      }
     } catch (e) {
       console.log(e);
     }
