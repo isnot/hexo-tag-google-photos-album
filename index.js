@@ -97,23 +97,28 @@ async function getTagHtml(options) {
   });
 
   const og = await metascraper({ html, url }).catch(e => {
-    throw new Error('google-photos-album: I can not get metadata. ' + e);
+    throw new Error('google-photos-album: I can not get Open Graph metadata. ' + e);
   });
   logger.info('google-photos-album: got html from Google Phots. ', og);
   if (typeof og !== 'object' || og === null) {
-    throw new Error('google-photos-album: something went wrong!');
+    throw new Error('google-photos-album: missing Open Graph metadata.');
+  }
+
+  if (!hasProperty(og, 'url') || og.url.indexOf('photos.google.com/share/') === -1) {
+    logger.info('google-photos-album: found no url for google photos.');
+    return '';
   }
 
   const image_urls = await getImageUrls(html, options.maxPics).catch(e => {
-    throw new Error('google-photos-album: I can not get images.' + e);
+    throw new Error('google-photos-album: found no images.' + e);
   });
-  logger.log(`google-photos-album: found ${image_urls.length} images.`);
+  logger.log(`google-photos-album: found ${image_urls.length} images.`, post.path);
 
   const cover_image = getCoverImageHtml(og, hexo.page, options) || '';
   const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
-    throw new Error('google-photos-album: I can not format html.');
+    throw new Error('google-photos-album: failure on format html.');
   });
   const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
   return await contents;
