@@ -1,7 +1,9 @@
 # hexo-tag-google-photos-album
 
-[Hexo](https://hexo.io/)向けのタグ・プラグインです。
+[Hexo](https://hexo.io/) 向けのタグ・プラグインです。
 Googleフォトの、アルバムを埋め込みます。
+
+[![NPM](https://nodei.co/npm/hexo-tag-google-photos-album.png)](https://nodei.co/npm/hexo-tag-google-photos-album/)
 
 ## Getting Started
 
