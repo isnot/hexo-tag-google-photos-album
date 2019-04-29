@@ -8,7 +8,7 @@ Googleフォトの、アルバムを埋め込みます。
 ## Getting Started
 
 * (GitHub) [hexo-tag-google-photos-album](https://github.com/isnot/hexo-tag-google-photos-album)
-* (npm) [hexo-tag-google-photos-album](https://www.npmjs.com/package/hexo-tag-link-preview)
+* (npm) [hexo-tag-google-photos-album](https://www.npmjs.com/package/hexo-tag-google-photos-album)
 * (sample) https://pages.isnot.jp/2019-04/13-image-test/
 
 ## インストール

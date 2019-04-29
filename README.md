@@ -7,7 +7,7 @@ This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to em
 ## Getting Started
 
 * (GitHub) [hexo-tag-google-photos-album](https://github.com/isnot/hexo-tag-google-photos-album)
-* (npm) [hexo-tag-google-photos-album](https://www.npmjs.com/package/hexo-tag-link-preview)
+* (npm) [hexo-tag-google-photos-album](https://www.npmjs.com/package/hexo-tag-google-photos-album)
 * (sample) https://pages.isnot.jp/2019-04/13-image-test/
 
 ## Installation
