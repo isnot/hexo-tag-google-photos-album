@@ -129,17 +129,15 @@ function getCoverTitleHtml(og, url, options) {
 
 function getCoverImageHtml(og, single_image_url, options) {
   let image_html = '';
-  let class_name = '';
-  if (single_image_url) {
-    class_name += 'gallery-item og-image';
-  } else {
-    class_name += 'og-image nolink';
+  let class_name = 'og-image';
+  if (!single_image_url) {
+    class_name += ' nolink';
   }
   if (hasProperty(og, 'image')) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '');
   }
   if (single_image_url) {
-    return util.htmlTag('a', { href: single_image_url + options.mediumSize, class: 'google-photos-album-image', target: options.target, rel: options.rel }, image_html);
+    return util.htmlTag('a', { href: single_image_url + options.mediumSize, class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html);
   }
   return image_html;
 }
