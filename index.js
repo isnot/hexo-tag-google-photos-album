@@ -83,7 +83,7 @@ async function getTagHtml(options) {
   const og = await metascraper({ html, url }).catch(e => {
     throw new Error('google-photos-album: I can not get Open Graph metadata. ' + e);
   });
-  logger.info('google-photos-album: got html from Google Phots. ', og);
+  logger.info('google-photos-album: got Open Graph metadata from target. ', og);
   if (typeof og !== 'object' || og === null) {
     throw new Error('google-photos-album: missing Open Graph metadata.');
   }
@@ -98,7 +98,12 @@ async function getTagHtml(options) {
   });
   logger.log(`google-photos-album: found ${image_urls.length} images.`);
 
-  const cover_image = getCoverImageHtml(og) || '';
+  let first_image = '';
+  if (image_urls.length && image_urls.length === 1) {
+    first_image = image_urls.pop();
+  }
+
+  const cover_image = getCoverImageHtml(og, first_image, options) || '';
   const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
@@ -122,10 +127,13 @@ function getCoverTitleHtml(og, url, options) {
   return util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
 }
 
-function getCoverImageHtml(og) {
+function getCoverImageHtml(og, single_image_url, options) {
   let image_html = '';
   if (hasProperty(og, 'image')) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: 'og-image nolink' }, '');
+  }
+  if (single_image_url) {
+    return util.htmlTag('a', { href: single_image_url, class: 'google-photos-album-image', target: options.target, rel: options.rel }, image_html);
   }
   return image_html;
 }
