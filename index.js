@@ -129,11 +129,11 @@ function getCoverTitleHtml(og, url, options) {
 
 function getCoverImageHtml(og, single_image_url, options) {
   let image_html = '';
-  let class_name = 'og-image';
+  let class_name = '';
   if (single_image_url) {
-    class_name += ' gallery-item';
+    class_name += 'gallery-item og-image';
   } else {
-    class_name += ' nolink';
+    class_name += 'og-image nolink';
   }
   if (hasProperty(og, 'image')) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '');
