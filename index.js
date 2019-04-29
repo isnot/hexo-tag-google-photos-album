@@ -137,7 +137,7 @@ function getCoverImageHtml(og, single_image_url, options) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '');
   }
   if (single_image_url) {
-    return util.htmlTag('a', { href: single_image_url + Option.mediumSize, class: 'google-photos-album-image', target: options.target, rel: options.rel }, image_html);
+    return util.htmlTag('a', { href: single_image_url + options.mediumSize, class: 'google-photos-album-image', target: options.target, rel: options.rel }, image_html);
   }
   return image_html;
 }
