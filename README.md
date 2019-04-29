@@ -61,7 +61,7 @@ You can use this plugin with no config.
 {% googlePhotosAlbum url %}
 ```
 
-- @param url {URL} Google Photos' share url.
+- @param {string} url - Google Photos' share url.
   You can also use shortened one.
 
 Example

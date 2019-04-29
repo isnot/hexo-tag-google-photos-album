@@ -1,6 +1,7 @@
 # hexo-tag-google-photos-album
 
-This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to embed albums from Google Photos.
+[Hexo](https://hexo.io/)向けのタグ・プラグインです。
+Googleフォトの、アルバムを埋め込みます。
 
 ## Getting Started
 
@@ -8,18 +9,18 @@ This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to em
 * (npm) TBD
 * (sample) https://pages.isnot.jp/2019-04/13-image-test/
 
-## Installation
+## インストール
 
 ```bash
 $ cd <path-to-your-blog-dir>
 $ npm install hexo-tag-google-photos-album --save
 ```
 
-## Usage
+## 使い方
 
-### Settings
+### 設定
 
-in \_config.yml
+ブログ全体の \_config.yml の中に、以下を書きます。（任意）
 
 ```yaml
 googlePhotosAlbum:
@@ -37,8 +38,10 @@ googlePhotosAlbum:
   generateAlways: false
 ```
 
-All params are optional.
-You can use this plugin with no config.
+全ての設定項目は、任意です。
+特に設定を書かなくても、インストールするだけで使い始めることができます。
+
+以下は設定項目の概要説明です。
 
 | attribute         | description                                | default |
 |:-----------------|:------------------------------------------|:-------|
@@ -55,29 +58,38 @@ You can use this plugin with no config.
 | maxPics           | (experimental)limit {Number} of embeded phtos. | 999   |
 | generateAlways     | (experimental)                              | false |
 
-### Syntax
+### 書き方
+
+記事（post or page）の原稿の中で、以下のように使います。
 
 ```
 {% googlePhotosAlbum url %}
 ```
 
-- @param url {URL} Google Photos' share url.
-  You can also use shortened one.
+- @param {string} url - Google Photos' share url.
+  短くしたURLでもOKです。
 
-Example
+*例*
 ```
 {% googlePhotosAlbum https://photos.google.com/share/AF1QipM-qmCtmxuhoUj5Y2lP7OUWe9FH1KjHqVuDokH9IxM1mj3ayWcbHxNa43NfaBLe2A?key=SUIyM0k0RkQ4OTY4elZmQVBwNDBFOFhJZVZwRTBn %}
+
+{% googlePhotosAlbum https://photos.app.goo.gl/X4sHxrNrKTXXbTef7 %}
+
+{% googlePhotosAlbum https://goo.gl/photos/gf86Lev5csbXs8sh9 %}
+
+{% googlePhotosAlbum https://bit.ly/2LebRva %}
+
 ```
 
-## Custamize
+## カスタマイズ
 
-use [hexo-light-gallery](https://github.com/lzane/hexo-light-gallery)
+ギャラリー系のプラグインと組み合わせると良いかも。（詳しくはあとで書く）
 
-## Thanks
+## 謝辞
 
-[hexo-tag-link-preview](https://www.npmjs.com/package/hexo-tag-link-preview)
+[hexo-tag-link-preview](https://www.npmjs.com/package/hexo-tag-link-preview) を参考にしました
 
-## License
+## ライセンス
 
 Copyright (c) 2019 isnot
 Licensed under the MIT license.
