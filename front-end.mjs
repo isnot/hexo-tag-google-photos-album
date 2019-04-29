@@ -19,10 +19,7 @@ function registerToLoadEvent() {
         return;
       }
       let imgs = document.body.querySelectorAll('.google-photos-album-images a');
-      for (let anchor of imgs) {
-        anchor.href = anchor.href.replace(/MEDIUMSIZEREGEXP/i, 'LARGESIZE');
-      }
-      imgs = document.body.querySelectorAll('a.google-photos-album-image');
+      imgs.push(...document.body.querySelectorAll('a.google-photos-album-image'));
       for (let anchor of imgs) {
         anchor.href = anchor.href.replace(/MEDIUMSIZEREGEXP/i, 'LARGESIZE');
       }
