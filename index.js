@@ -89,7 +89,7 @@ async function getTagHtml(options) {
   }
 
   if (!hasProperty(og, 'url') || og.url.indexOf('photos.google.com/share/') === -1) {
-    logger.info('google-photos-album: found no url for google photos.');
+    logger.info('google-photos-album: It seems no urls for Google Photos.');
     return '';
   }
 
@@ -130,7 +130,9 @@ function getCoverTitleHtml(og, url, options) {
 function getCoverImageHtml(og, single_image_url, options) {
   let image_html = '';
   let class_name = 'og-image';
-  if (!single_image_url) {
+  if (single_image_url) {
+    class_name += ' gallery-item';
+  } else {
     class_name += ' nolink';
   }
   if (hasProperty(og, 'image')) {
