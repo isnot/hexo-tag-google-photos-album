@@ -203,13 +203,9 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   let config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
-  debugger;
-// var g = Function('return Reflect.ownKeys(this.global)')();
-// console.log(Object.hasOwnProperty(g, 'hexo') ? 'g.hexo' : 'none');
-console.log(inspect(hexo, { showHidden: true, depth: 0, colors: true }));
-// Object.getOwnPropertyNames
-console.log(hexo.locals.get('data'));
-  debugger;
+  // debugger;
+  // console.log(inspect(hexo, { showHidden: true, depth: 0, colors: true }));
+  // Object.getOwnPropertyNames
 
   config.url = args[0];
   return getTagHtml(config).catch(e => {
@@ -221,7 +217,7 @@ console.log(hexo.locals.get('data'));
 
 // Inject Style/Script
 hexo.extend.filter.register('after_post_render', data => {
-  debugger;
+  // debugger;
   // logger.debug('google-photos-album: filter', data.source);
   if (ignore(data.source)) { return data; }
 
@@ -237,7 +233,7 @@ hexo.extend.filter.register('after_post_render', data => {
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
-  debugger;
+  // debugger;
   const config = margeConfig(hexo.config);
   if (config.enableDefaultStyle) {
     copyCss().catch(e => {
@@ -245,4 +241,4 @@ hexo.extend.filter.register('before_exit', _ => {
     });
   }
 });
-  debugger;
+  // debugger;
