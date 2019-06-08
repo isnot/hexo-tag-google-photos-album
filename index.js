@@ -19,10 +19,6 @@ const metascraper = require('metascraper')([
   require('metascraper-title')(),
   require('metascraper-url')()
 ]);
-// CAUTION
-// metascraper have XSS vulnerabilities and no patch available.
-// More info https://nodesecurity.io/advisories/603
-// DO NOT forget escape the acquired contents or its results.
 
 const front = require('./front-end');
 const { inspect } = require('util');
