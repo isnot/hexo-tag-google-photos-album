@@ -1,8 +1,9 @@
 # hexo-tag-google-photos-album-gallery
 
 This is a Tag plugin for [Hexo](https://hexo.io/). It provides the ability to embed photo albums from Google Photos as a light gallery 'Gallery' component.  It is based on the hexo-tag-google-photos-album plugin found [here](https://github.com/isnot/hexo-tag-google-photos-album)
-
+<!--
 [![NPM](https://nodei.co/npm/hexo-tag-google-photos-album.png)](https://nodei.co/npm/hexo-tag-google-photos-album/)
+-->
 
 ## Getting Started
 
