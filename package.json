@@ -1,7 +1,7 @@
 {
-  "name": "hexo-tag-google-photos-album",
-  "version": "1.0.5",
-  "description": "This is a Tag plugin for Hexo. It provides the ability to embed photo albums from Google Photos.",
+  "name": "hexo-tag-google-photos-album-gallery",
+  "version": "1.0.0",
+  "description": "This is a Tag plugin for Hexo. It provides the ability to embed photo albums from Google Photos as galleries using lightgallery.js",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,21 +9,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/isnot/hexo-tag-google-photos-album.git"
+    "url": "git+https://github.com/gisjeremy/hexo-tag-google-photos-album-gallery.git"
   },
   "keywords": [
     "hexo",
     "photos",
-    "plugin"
+    "plugin",
+    "lightgallery",
+    "Google"
   ],
   "author": {
-    "name": "isnot"
+    "name": "isnot/gisjeremy"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/isnot/hexo-tag-google-photos-album/issues"
+    "url": "https://github.com/gisjeremy/hexo-tag-google-photos-album-gallery/issues"
   },
-  "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
+  "homepage": "https://github.com/gisjeremy/hexo-tag-google-photos-album-gallery#readme",
   "dependencies": {
     "got": "^9.6.0",
     "hexo-fs": "^1.0.2",
