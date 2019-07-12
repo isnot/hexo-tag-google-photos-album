@@ -1,7 +1,7 @@
 /**
- * hexo-tag-google-photos-album
- * https://github.com/isnot/hexo-tag-google-photos-album.git
- * Copyright (c) 2019 isnot (aka ISHIDA Naoto)
+ * hexo-tag-google-photos-album-gallery
+ * https://github.com/gisjeremy/hexo-tag-google-photos-album-gallery.git
+ * Copyright (c) 2019 gisjeremy (aka ISHIDA Naoto)
  * Licensed under the MIT license.
  * Syntax:
  * {% googlePhotosAlbum url %}
@@ -76,28 +76,28 @@ function margeConfig(config_yml) {
 
 async function getTagHtml(options, count) {
     const { body: html, url } = await got(options.url).catch(error => {
-        throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
+        throw new Error('google-photos-album-gallery: I can not get contents. ' + error.response.body);
     });
 
     const og = await metascraper({ html, url }).catch(e => {
-        throw new Error('google-photos-album: I can not get Open Graph metadata. ' + e);
+        throw new Error('google-photos-album-gallery: I can not get Open Graph metadata. ' + e);
     });
-    logger.info('google-photos-album: got Open Graph metadata from target. ', og);
+    logger.info('google-photos-album-gallery: got Open Graph metadata from target. ', og);
     if (typeof og !== 'object' || og === null) {
-        throw new Error('google-photos-album: missing Open Graph metadata.');
+        throw new Error('google-photos-album-gallery: missing Open Graph metadata.');
     }
 
     if (!hasProperty(og, 'url') || og.url.indexOf('photos.google.com/share/') === -1) {
-        logger.info('google-photos-album: It seems no urls for Google Photos.');
+        logger.info('google-photos-album-gallery: It seems no urls for Google Photos.');
         return '';
     }
     var images = [];
     images = await getImageUrls(html, options.maxPics).catch(e => {
-        throw new Error('google-photos-album: found no images.' + e);
+        throw new Error('google-photos-album-gallery: found no images.' + e);
     });
 
     image_urls.push({ id: count, images: images });
-    logger.log(`google-photos-album: found ${images.length} images.`);
+    logger.log(`google-photos-album-gallery: found ${images.length} images.`);
 
     let first_image = '';
     if (images.length && images.length === 1) {
@@ -167,7 +167,7 @@ function createLightGallery(images, options) {
     let el = [];
 
     if (!Array.isArray(images)) {
-        logger.info('google-photos-album: I can not get images via scraping.');
+        logger.info('google-photos-album-gallery: I can not get images via scraping.');
         urls = [];
     }
     try {
@@ -177,7 +177,7 @@ function createLightGallery(images, options) {
 
         return el;
     } catch (e) {
-        throw new Error('google-photos-album: miss images.');
+        throw new Error('google-photos-album-gallery: miss images.');
     }
 
 };
@@ -185,7 +185,7 @@ function createLightGallery(images, options) {
 async function getImgHtml(images, options) {
     let urls = images;
     if (!Array.isArray(images)) {
-        logger.info('google-photos-album: I can not get images via scraping.');
+        logger.info('google-photos-album-gallery: I can not get images via scraping.');
         urls = [];
     }
     try {
@@ -194,7 +194,7 @@ async function getImgHtml(images, options) {
         }).join('\n') + '</div>\n';
         return await html;
     } catch (e) {
-        throw new Error('google-photos-album: miss images.');
+        throw new Error('google-photos-album-gallery: miss images.');
     }
 }
 
@@ -209,22 +209,22 @@ async function copyCss() {
     );
     const src = pathFn.join(
         hexo.plugin_dir,
-        'hexo-tag-google-photos-album/css',
+        'hexo-tag-google-photos-album-gallery/css',
         css_filename
     );
 
-    logger.debug(`google-photos-album: copyCss ${css_filename}`);
+    logger.debug(`google-photos-album-gallery: copyCss ${css_filename}`);
     fs.copyFile(src, dest).then(_ => {
-        logger.debug(`google-photos-album: copy done. ${src} => ${dest}`);
+        logger.debug(`google-photos-album-gallery: copy done. ${src} => ${dest}`);
     }).catch(e => {
-        throw new Error('google-photos-album: file error. ' + e);
+        throw new Error('google-photos-album-gallery: file error. ' + e);
     });
 }
 
 var count = 0;
 // Tag Plugin
 hexo.extend.tag.register('googlePhotosAlbum', args => {
-    logger.log('google-photos-album: start ', args[0]);
+    logger.log('google-photos-album-gallery: start ', args[0]);
     if (!args) { return; }
     let config = margeConfig(hexo.config);
     if (!config.generateAlways && isDev()) { return; }
@@ -235,7 +235,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 
     config.url = args[0];
     var result = getTagHtml(config, count).catch(e => {
-        throw new Error('google-photos-album: failure.' + e);
+        throw new Error('google-photos-album-gallery: failure.' + e);
     });
 
     count++;
@@ -274,7 +274,7 @@ hexo.extend.filter.register('before_exit', _ => {
     const config = margeConfig(hexo.config);
     if (config.enableDefaultStyle) {
         copyCss().catch(e => {
-            throw new Error('google-photos-album: miss css.' + e);
+            throw new Error('google-photos-album-gallery: miss css.' + e);
         });
     }
 });
