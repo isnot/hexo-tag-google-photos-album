@@ -131,10 +131,10 @@ use [hexo-light-gallery](https://github.com/lzane/hexo-light-gallery)
 
 ## Thanks
 
-[hexo-tag-link-preview](https://www.npmjs.com/package/hexo-tag-link-preview)
+[hexo-tag-link-preview](https://www.npmjs.com/package/hexo-tag-link-preview)  
 [hexo-tag-google-photos-album](https://github.com/isnot/hexo-tag-google-photos-album)
 
 ## License
 
-Copyright (c) 2019 gisjeremy
+Copyright (c) 2019 gisjeremy  
 Licensed under the MIT license.
