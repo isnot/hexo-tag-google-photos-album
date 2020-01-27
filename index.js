@@ -58,7 +58,7 @@ function isDev() {
 }
 
 function ignore(source) {
-  var ext = source.substring(source.lastIndexOf('.')).toLowerCase();
+  const ext = source.substring(source.lastIndexOf('.')).toLowerCase();
   return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
 }
 
@@ -103,26 +103,26 @@ async function getTagHtml(options) {
 
   const cover_image = getCoverImageHtml(og, first_image, options) || '';
   const cover_title = getCoverTitleHtml(og, url, options) || '';
-  const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title);
+  const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title, false);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
     throw new Error('google-photos-album: failure on format html.');
   });
-  const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html);
+  const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html, false);
   return await contents;
 }
 
 function getCoverTitleHtml(og, url, options) {
   let props = '';
   if (hasProperty(og, 'title') && og.title) {
-    props += util.htmlTag('span', { class: 'og-title' }, util.escapeHTML(og.title));
+    props += util.htmlTag('span', { class: 'og-title' }, og.title);
   }
 
   if (hasProperty(og, 'description') && og.description) {
     const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '}) || '';
-    props += util.htmlTag('span', { class: 'og-description' }, util.escapeHTML(description));
+    props += util.htmlTag('span', { class: 'og-description' }, description);
   }
 
-  return util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props);
+  return util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props, false);
 }
 
 function getCoverImageHtml(og, single_image_url, options) {
@@ -135,7 +135,7 @@ function getCoverImageHtml(og, single_image_url, options) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '');
   }
   if (single_image_url) {
-    return util.htmlTag('a', { href: single_image_url + options.mediumSize, class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html);
+    return util.htmlTag('a', { href: single_image_url + options.mediumSize, class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
   }
   return image_html;
 }
