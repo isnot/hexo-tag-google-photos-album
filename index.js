@@ -1,17 +1,16 @@
 /**
-* hexo-tag-google-photos-album
-* https://github.com/isnot/hexo-tag-google-photos-album.git
-* Copyright (c) 2019 isnot (aka ISHIDA Naoto)
-* Licensed under the MIT license.
-* Syntax:
-* {% googlePhotosAlbum url %}
-**/
+ * hexo-tag-google-photos-album
+ * https://github.com/isnot/hexo-tag-google-photos-album.git
+ * Copyright (c) 2019 isnot (aka ISHIDA Naoto)
+ * Licensed under the MIT license.
+ * Syntax:
+ * {% googlePhotosAlbum url %}
+ **/
 
 'use strict';
 const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
-const logger = hexo.log || console;
 const got = require('got');
 const metascraper = require('metascraper')([
   require('metascraper-description')(),
@@ -21,7 +20,7 @@ const metascraper = require('metascraper')([
 ]);
 
 const front = require('./front-end');
-const { inspect } = require('util');
+// const { inspect } = require('util');
 
 const factory_defaults = {
   descriptionLength: 140,
@@ -39,6 +38,8 @@ const factory_defaults = {
   maxPics: 999,
   url: ''
 };
+
+const logger = hexo.log || console;
 
 function hasProperty(obj, prop) {
   if (typeof obj !== 'object' || obj === null) {
@@ -143,15 +144,15 @@ async function getImageUrls(html, max) {
   if (typeof html !== 'string' || html === '') {
     throw new Error('google-photos-album: need html.');
   }
-  const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,null,null,null,null,null,)/mg;
-  let matched = [];
+  const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,\[\]\s)/mg;
+  let matched = {};
   let myArray;
   while ((myArray = regex.exec(html)) !== null) {
-    if (max >= matched.length) {
-      matched.push(...myArray.slice(1));
+    if (max >= Object.keys(matched).length) {
+      matched[ myArray.slice(1).pop() ] = true;
     }
   }
-  return await matched;
+  return await Object.keys(matched);
 }
 
 async function getImgHtml(images, options) {
@@ -194,8 +195,8 @@ async function copyCss() {
 
 // Tag Plugin
 hexo.extend.tag.register('googlePhotosAlbum', args => {
+  if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
-  if (!args) { return; }
   let config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
@@ -237,4 +238,4 @@ hexo.extend.filter.register('before_exit', _ => {
     });
   }
 });
-  // debugger;
+// debugger;
