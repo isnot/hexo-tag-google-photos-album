@@ -73,7 +73,7 @@ function margeConfig(config_yml) {
   return config;
 }
 
-async function getTagHtml(options) {
+async function getTagHtml(options, counter) {
   const { body: html, url } = await got(options.url).catch(error => {
     throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
   });
@@ -107,7 +107,7 @@ async function getTagHtml(options) {
   const images_html = await getImgHtml(image_urls, options).catch(e => {
     throw new Error('google-photos-album: failure on format html.');
   });
-  const contents = util.htmlTag('div', { class: options.className }, metadatas + images_html, false);
+  const contents = util.htmlTag('div', { class: options.className, id: `${options.className}${counter}` }, metadatas + images_html, false);
   return await contents;
 }
 
@@ -135,7 +135,7 @@ function getCoverImageHtml(og, single_image_url, options) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '');
   }
   if (single_image_url) {
-    return util.htmlTag('a', { href: single_image_url + options.mediumSize, class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
+    return util.htmlTag('a', { href: single_image_url + options.mediumSize + '?authuser=0', class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
   }
   return image_html;
 }
@@ -145,11 +145,11 @@ async function getImageUrls(html, max) {
     throw new Error('google-photos-album: need html.');
   }
   const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,\[\]\s)/mg;
-  let matched = {};
+  const matched = {};
   let myArray;
   while ((myArray = regex.exec(html)) !== null) {
     if (max >= Object.keys(matched).length) {
-      matched[ myArray.slice(1).pop() ] = true;
+      matched[myArray.slice(1).pop()] = true;
     }
   }
   return await Object.keys(matched);
@@ -163,7 +163,7 @@ async function getImgHtml(images, options) {
   }
   try {
     const html = '\n<div class="google-photos-album-images clearfix">' + urls.map(url => {
-      return `<a href="${url}${options.mediumSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}"></a>`;
+      return `<a href="${url}${options.mediumSize}" class="gallery-item" target="${options.target}" rel="${options.rel}"><img src="${url}${options.smallSize}?authuser=0"></a>`;
     }).join('\n') + '</div>\n';
     return await html;
   } catch (e) {
@@ -194,10 +194,11 @@ async function copyCss() {
 }
 
 // Tag Plugin
+let post_item_counter = 0;
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
-  let config = margeConfig(hexo.config);
+  const config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
   // debugger;
@@ -205,7 +206,8 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   // Object.getOwnPropertyNames
 
   config.url = args[0];
-  return getTagHtml(config).catch(e => {
+  post_item_counter++;
+  return getTagHtml(config, post_item_counter).catch(e => {
     throw new Error('google-photos-album: failure.' + e);
   });
 }, {
@@ -215,7 +217,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 // Inject Style/Script
 hexo.extend.filter.register('after_post_render', data => {
   // debugger;
-  // logger.debug('google-photos-album: filter', data.source);
+  // logger.debug('google-photos-album: filter', data.title, data.content.substring(0, 30));
   if (ignore(data.source)) { return data; }
 
   const config = margeConfig(hexo.config);

@@ -18,9 +18,9 @@ function registerToLoadEvent() {
       if (window.innerWidth < Number('LARGESIZETHRESHOLD')) {
         return;
       }
-      let imgs = Array.from(document.body.querySelectorAll('.google-photos-album-images a'));
+      const imgs = Array.from(document.body.querySelectorAll('.google-photos-album-images a'));
       imgs.push(...Array.from(document.body.querySelectorAll('a.google-photos-album-image')));
-      for (let anchor of imgs) {
+      for (const anchor of imgs) {
         anchor.href = anchor.href.replace(/MEDIUMSIZEREGEXP/i, 'LARGESIZE');
       }
     } catch (e) {
