@@ -114,12 +114,12 @@ async function getTagHtml(options, counter) {
 function getCoverTitleHtml(og, url, options) {
   let props = '';
   if (hasProperty(og, 'title') && og.title) {
-    props += util.htmlTag('span', { class: 'og-title' }, og.title);
+    props += util.htmlTag('span', { class: 'og-title' }, og.title, true);
   }
 
   if (hasProperty(og, 'description') && og.description) {
     const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '}) || '';
-    props += util.htmlTag('span', { class: 'og-description' }, description);
+    props += util.htmlTag('span', { class: 'og-description' }, description, true);
   }
 
   return util.htmlTag('a', { href: url, class: 'og-url', target: options.target, rel: options.rel }, props, false);
@@ -132,7 +132,7 @@ function getCoverImageHtml(og, single_image_url, options) {
     class_name += ' nolink';
   }
   if (hasProperty(og, 'image')) {
-    image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '');
+    image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '', true);
   }
   if (single_image_url) {
     return util.htmlTag('a', { href: single_image_url + options.mediumSize + '?authuser=0', class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
