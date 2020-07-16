@@ -19,8 +19,6 @@ const metascraper = require('metascraper')([
   require('metascraper-url')()
 ]);
 
-const css = hexo.extend.helper.get('css');
-
 const front = require('./front-end');
 // const { inspect } = require('util');
 
@@ -215,12 +213,9 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 const config = margeConfig(hexo.config);
 hexo.extend.injector.register('body_end', front.scriptHtml(config), 'post');
 hexo.extend.injector.register('body_end', front.scriptHtml(config), 'page');
-hexo.extend.injector.register('head_end', () => {
-  const config = margeConfig(hexo.config);
-  if (config.enableDefaultStyle) {
-    return css(`/css/${pathFn.basename(config.defaultStyle)}`);
-  }
-}, 'default');
+if (config.enableDefaultStyle) {
+  hexo.extend.injector.register('head_end', `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`, 'default');
+}
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
