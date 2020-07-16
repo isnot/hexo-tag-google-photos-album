@@ -19,6 +19,8 @@ const metascraper = require('metascraper')([
   require('metascraper-url')()
 ]);
 
+const css = hexo.extend.helper.get('css');
+
 const front = require('./front-end');
 // const { inspect } = require('util');
 
@@ -55,11 +57,6 @@ function isDev() {
   }
   // logger.log('hexo-env: development');
   return true;
-}
-
-function ignore(source) {
-  const ext = source.substring(source.lastIndexOf('.')).toLowerCase();
-  return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
 }
 
 function margeConfig(config_yml) {
@@ -215,6 +212,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
+const config = margeConfig(hexo.config);
 hexo.extend.injector.register('body_end', front.scriptHtml(config), 'post');
 hexo.extend.injector.register('body_end', front.scriptHtml(config), 'page');
 hexo.extend.injector.register('head_end', () => {
