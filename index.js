@@ -215,20 +215,14 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
-hexo.extend.filter.register('after_post_render', data => {
-  // debugger;
-  // logger.debug('google-photos-album: filter', data.title, data.content.substring(0, 30));
-  if (ignore(data.source)) { return data; }
-
+hexo.extend.injector.register('body_end', front.scriptHtml(config), 'post');
+hexo.extend.injector.register('body_end', front.scriptHtml(config), 'page');
+hexo.extend.injector.register('head_end', () => {
   const config = margeConfig(hexo.config);
-  let myContent = data.content;
   if (config.enableDefaultStyle) {
-    myContent = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${myContent}`;
-    // integrity="sha512-xxxx=="
+    return css(`/css/${pathFn.basename(config.defaultStyle)}`);
   }
-  data.content = `${myContent}${front.scriptHtml(config)}`;
-  return data;
-});
+}, 'default');
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
