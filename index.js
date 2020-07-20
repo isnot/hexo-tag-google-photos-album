@@ -50,11 +50,6 @@ function isDev() {
   return true;
 }
 
-function ignore(source) {
-  const ext = source.substring(source.lastIndexOf('.')).toLowerCase();
-  return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
-}
-
 function margeConfig(config_yml) {
   let config = {};
   if (hasProperty(config_yml, 'googlePhotosAlbum')) {
@@ -194,6 +189,7 @@ async function copyCss() {
 let post_item_counter = 0;
 const config = margeConfig(hexo.config);
 hexo.extend.tag.register('googlePhotosAlbum', args => {
+  logger.debug('google-photos-album: loaded');
   if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
   if (!config.generateAlways && isDev()) { return; }
@@ -202,6 +198,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   // console.log(inspect(hexo, { showHidden: true, depth: 0, colors: true }));
   // Object.getOwnPropertyNames
 
+  logger.log('google-photos-album: start ', args[0]);
   config.url = args[0];
   post_item_counter++;
   return getTagHtml(config, post_item_counter).catch(e => {
@@ -212,8 +209,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
-hexo.extend.injector.register('body_end', front.scriptHtml(config), 'post');
-hexo.extend.injector.register('body_end', front.scriptHtml(config), 'page');
+hexo.extend.injector.register('body_end', front.scriptHtml(config), 'default');
 if (config.enableDefaultStyle) {
   hexo.extend.injector.register('head_end', `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`, 'default');
 }
