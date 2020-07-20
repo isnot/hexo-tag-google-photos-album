@@ -192,10 +192,10 @@ async function copyCss() {
 
 // Tag Plugin
 let post_item_counter = 0;
+const config = margeConfig(hexo.config);
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
-  const config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
   // debugger;
@@ -220,12 +220,9 @@ if (config.enableDefaultStyle) {
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
-  // debugger;
-  const config = margeConfig(hexo.config);
   if (config.enableDefaultStyle) {
     copyCss().catch(e => {
       throw new Error('google-photos-album: miss css.' + e);
     });
   }
 });
-// debugger;
