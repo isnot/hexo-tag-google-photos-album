@@ -11,14 +11,7 @@
 const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
-const got = require('got');
-const metascraper = require('metascraper')([
-  require('metascraper-description')(),
-  require('metascraper-image')(),
-  require('metascraper-title')(),
-  require('metascraper-url')()
-]);
-
+const ogs = require('open-graph-scraper');
 const front = require('./front-end');
 // const { inspect } = require('util');
 
@@ -74,22 +67,26 @@ function margeConfig(config_yml) {
 }
 
 async function getTagHtml(options, counter) {
-  const { body: html, url } = await got(options.url).catch(error => {
-    throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
+  const data = await ogs(options).catch(error => {
+    throw new Error('google-photos-album: I can not get contents or Open Graph metadata. ' + JSON.stringify(error));
   });
+  const { error, result, response } = data;
+  logger.log('error:', error); // This is returns true or false. True if there was a error. The error it self is inside the results object.
+  logger.log('result:', result); // This contains all of the Open Graph results
+  logger.log('response:', response); // This contains the HTML of page
+  const og = result;
+  const html = response;
 
-  const og = await metascraper({ html, url }).catch(e => {
-    throw new Error('google-photos-album: I can not get Open Graph metadata. ' + e);
-  });
   logger.info('google-photos-album: got Open Graph metadata from target. ', og);
   if (typeof og !== 'object' || og === null) {
     throw new Error('google-photos-album: missing Open Graph metadata.');
   }
 
-  if (!hasProperty(og, 'url') || og.url.indexOf('photos.google.com/share/') === -1) {
+  if (!hasProperty(og, 'ogUrl') || og.ogUrl.indexOf('photos.google.com/share/') === -1) {
     logger.info('google-photos-album: It seems no urls for Google Photos.');
     return '';
   }
+  const url = og.ogUrl;
 
   const image_urls = await getImageUrls(html, options.maxPics).catch(e => {
     throw new Error('google-photos-album: found no images.' + e);
@@ -113,12 +110,12 @@ async function getTagHtml(options, counter) {
 
 function getCoverTitleHtml(og, url, options) {
   let props = '';
-  if (hasProperty(og, 'title') && og.title) {
-    props += util.htmlTag('span', { class: 'og-title' }, og.title, true);
+  if (hasProperty(og, 'ogTitle') && og.ogTitle) {
+    props += util.htmlTag('span', { class: 'og-title' }, og.ogTitle, true);
   }
 
-  if (hasProperty(og, 'description') && og.description) {
-    const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '}) || '';
+  if (hasProperty(og, 'ogDescription') && og.ogDescription) {
+    const description = util.truncate(og.ogDescription, {length: options.descriptionLength, separator: ' '}) || '';
     props += util.htmlTag('span', { class: 'og-description' }, description, true);
   }
 
@@ -131,8 +128,8 @@ function getCoverImageHtml(og, single_image_url, options) {
   if (!single_image_url) {
     class_name += ' nolink';
   }
-  if (hasProperty(og, 'image')) {
-    image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '', true);
+  if (hasProperty(og, 'ogImage')) {
+    image_html = util.htmlTag('img', { src: util.stripHTML(og.ogImage.url), class: class_name }, '', true);
   }
   if (single_image_url) {
     return util.htmlTag('a', { href: single_image_url + options.mediumSize + '?authuser=0', class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
