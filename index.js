@@ -11,18 +11,7 @@
 const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
-<<<<<<< HEAD
 const ogs = require('open-graph-scraper');
-=======
-const got = require('got');
-const metascraper = require('metascraper')([
-  require('metascraper-description')(),
-  require('metascraper-image')(),
-  require('metascraper-title')(),
-  require('metascraper-url')()
-]);
-
->>>>>>> no use helper.css()
 const front = require('./front-end');
 // const { inspect } = require('util');
 
