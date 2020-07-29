@@ -12,13 +12,7 @@ const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
 const got = require('got');
-const metascraper = require('metascraper')([
-  require('metascraper-description')(),
-  require('metascraper-image')(),
-  require('metascraper-title')(),
-  require('metascraper-url')()
-]);
-
+const ogs = require('open-graph-scraper');
 const front = require('./front-end');
 // const { inspect } = require('util');
 
@@ -57,11 +51,6 @@ function isDev() {
   return true;
 }
 
-function ignore(source) {
-  const ext = source.substring(source.lastIndexOf('.')).toLowerCase();
-  return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
-}
-
 function margeConfig(config_yml) {
   let config = {};
   if (hasProperty(config_yml, 'googlePhotosAlbum')) {
@@ -74,25 +63,30 @@ function margeConfig(config_yml) {
 }
 
 async function getTagHtml(options, counter) {
-  const { body: html, url } = await got(options.url).catch(error => {
-    throw new Error('google-photos-album: I can not get contents. ' + error.response.body);
+  const { body: html } = await got(options.url).catch(e => {
+    throw new Error(`google-photos-album: request failure. ${JSON.stringify(e)}`);
   });
+  const { error, result: og } = await ogs({html}).catch(e => {
+    throw new Error(`google-photos-album: I can not get contents or Open Graph metadata. ${JSON.stringify(e)}`);
+  });
+  logger.debug('google-photos-album: ogs result:', Object.keys(og));
 
-  const og = await metascraper({ html, url }).catch(e => {
-    throw new Error('google-photos-album: I can not get Open Graph metadata. ' + e);
-  });
-  logger.info('google-photos-album: got Open Graph metadata from target. ', og);
-  if (typeof og !== 'object' || og === null) {
-    throw new Error('google-photos-album: missing Open Graph metadata.');
+  if (error) {
+    throw new Error(`google-photos-album: retrieving metadata failure. ${JSON.stringify([options, og])}`);
   }
+  if (typeof og !== 'object' || og === null) {
+    throw new Error(`google-photos-album: missing Open Graph metadata. ${JSON.stringify([options, og])}`);
+  }
+  logger.debug('google-photos-album: got Open Graph metadata from target. ', og);
 
-  if (!hasProperty(og, 'url') || og.url.indexOf('photos.google.com/share/') === -1) {
+  if (!hasProperty(og, 'ogUrl') || og.ogUrl.indexOf('photos.google.com/share/') === -1) {
     logger.info('google-photos-album: It seems no urls for Google Photos.');
     return '';
   }
+  const url = og.ogUrl;
 
   const image_urls = await getImageUrls(html, options.maxPics).catch(e => {
-    throw new Error('google-photos-album: found no images.' + e);
+    throw new Error(`google-photos-album: found no images. ${e}`);
   });
   logger.log(`google-photos-album: found ${image_urls.length} images.`);
 
@@ -105,7 +99,7 @@ async function getTagHtml(options, counter) {
   const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title, false);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
-    throw new Error('google-photos-album: failure on format html.');
+    throw new Error(`google-photos-album: failure on format html. ${JSON.stringify(e)}`);
   });
   const contents = util.htmlTag('div', { class: options.className, id: `${options.className}${counter}` }, metadatas + images_html, false);
   return await contents;
@@ -113,12 +107,12 @@ async function getTagHtml(options, counter) {
 
 function getCoverTitleHtml(og, url, options) {
   let props = '';
-  if (hasProperty(og, 'title') && og.title) {
-    props += util.htmlTag('span', { class: 'og-title' }, og.title, true);
+  if (hasProperty(og, 'ogTitle') && og.ogTitle) {
+    props += util.htmlTag('span', { class: 'og-title' }, og.ogTitle, true);
   }
 
-  if (hasProperty(og, 'description') && og.description) {
-    const description = util.truncate(og.description, {length: options.descriptionLength, separator: ' '}) || '';
+  if (hasProperty(og, 'ogDescription') && og.ogDescription) {
+    const description = util.truncate(og.ogDescription, {length: options.descriptionLength, separator: ' '}) || '';
     props += util.htmlTag('span', { class: 'og-description' }, description, true);
   }
 
@@ -131,11 +125,11 @@ function getCoverImageHtml(og, single_image_url, options) {
   if (!single_image_url) {
     class_name += ' nolink';
   }
-  if (hasProperty(og, 'image')) {
-    image_html = util.htmlTag('img', { src: util.stripHTML(og.image), class: class_name }, '', true);
+  if (hasProperty(og, 'ogImage')) {
+    image_html = util.htmlTag('img', { src: util.stripHTML(og.ogImage.url), class: class_name }, '', true);
   }
   if (single_image_url) {
-    return util.htmlTag('a', { href: single_image_url + options.mediumSize + '?authuser=0', class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
+    return util.htmlTag('a', { href: `${single_image_url}${options.mediumSize}?authuser=0`, class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
   }
   return image_html;
 }
@@ -177,7 +171,7 @@ async function copyCss() {
   const dest = pathFn.join(
     hexo.public_dir,
     'css',
-    pathFn.basename(css_filename, pathFn.extname(css_filename)) + '.css'
+    `${pathFn.basename(css_filename, pathFn.extname(css_filename))}.css`
   );
   const src = pathFn.join(
     hexo.plugin_dir,
@@ -189,55 +183,44 @@ async function copyCss() {
   fs.copyFile(src, dest).then(_ => {
     logger.debug(`google-photos-album: copy done. ${src} => ${dest}`);
   }).catch(e => {
-    throw new Error('google-photos-album: file error. ' + e);
+    throw new Error(`google-photos-album: file error. ${e}`);
   });
 }
 
 // Tag Plugin
 let post_item_counter = 0;
+const config = margeConfig(hexo.config);
 hexo.extend.tag.register('googlePhotosAlbum', args => {
+  logger.debug('google-photos-album: loaded');
   if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
-  const config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
   // debugger;
   // console.log(inspect(hexo, { showHidden: true, depth: 0, colors: true }));
   // Object.getOwnPropertyNames
 
+  logger.log('google-photos-album: start ', args[0]);
   config.url = args[0];
   post_item_counter++;
   return getTagHtml(config, post_item_counter).catch(e => {
-    throw new Error('google-photos-album: failure.' + e);
+    throw new Error(`google-photos-album: failure. ${e}`);
   });
 }, {
   async: true
 });
 
 // Inject Style/Script
-hexo.extend.filter.register('after_post_render', data => {
-  // debugger;
-  // logger.debug('google-photos-album: filter', data.title, data.content.substring(0, 30));
-  if (ignore(data.source)) { return data; }
-
-  const config = margeConfig(hexo.config);
-  let myContent = data.content;
-  if (config.enableDefaultStyle) {
-    myContent = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${myContent}`;
-    // integrity="sha512-xxxx=="
-  }
-  data.content = `${myContent}${front.scriptHtml(config)}`;
-  return data;
-});
+hexo.extend.injector.register('body_end', front.scriptHtml(config), 'default');
+if (config.enableDefaultStyle) {
+  hexo.extend.injector.register('head_end', `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`, 'default');
+}
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
-  // debugger;
-  const config = margeConfig(hexo.config);
   if (config.enableDefaultStyle) {
     copyCss().catch(e => {
-      throw new Error('google-photos-album: miss css.' + e);
+      throw new Error(`google-photos-album: miss css. ${e}`);
     });
   }
 });
-// debugger;
