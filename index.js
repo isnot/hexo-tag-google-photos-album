@@ -51,11 +51,6 @@ function isDev() {
   return true;
 }
 
-function ignore(source) {
-  const ext = source.substring(source.lastIndexOf('.')).toLowerCase();
-  return ['.js', '.css', '.html', '.htm'].indexOf(ext) > -1;
-}
-
 function margeConfig(config_yml) {
   let config = {};
   if (hasProperty(config_yml, 'googlePhotosAlbum')) {
@@ -194,16 +189,18 @@ async function copyCss() {
 
 // Tag Plugin
 let post_item_counter = 0;
+const config = margeConfig(hexo.config);
 hexo.extend.tag.register('googlePhotosAlbum', args => {
+  logger.debug('google-photos-album: loaded');
   if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
-  const config = margeConfig(hexo.config);
   if (!config.generateAlways && isDev()) { return; }
 
   // debugger;
   // console.log(inspect(hexo, { showHidden: true, depth: 0, colors: true }));
   // Object.getOwnPropertyNames
 
+  logger.log('google-photos-album: start ', args[0]);
   config.url = args[0];
   post_item_counter++;
   return getTagHtml(config, post_item_counter).catch(e => {
@@ -214,29 +211,16 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
-hexo.extend.filter.register('after_post_render', data => {
-  // debugger;
-  // logger.debug('google-photos-album: filter', data.title, data.content.substring(0, 30));
-  if (ignore(data.source)) { return data; }
-
-  const config = margeConfig(hexo.config);
-  let myContent = data.content;
-  if (config.enableDefaultStyle) {
-    myContent = `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />${myContent}`;
-    // integrity="sha512-xxxx=="
-  }
-  data.content = `${myContent}${front.scriptHtml(config)}`;
-  return data;
-});
+hexo.extend.injector.register('body_end', front.scriptHtml(config), 'default');
+if (config.enableDefaultStyle) {
+  hexo.extend.injector.register('head_end', `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`, 'default');
+}
 
 // Copy file
 hexo.extend.filter.register('before_exit', _ => {
-  // debugger;
-  const config = margeConfig(hexo.config);
   if (config.enableDefaultStyle) {
     copyCss().catch(e => {
       throw new Error('google-photos-album: miss css.' + e);
     });
   }
 });
-// debugger;
