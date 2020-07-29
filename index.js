@@ -1,15 +1,13 @@
 /**
  * hexo-tag-google-photos-album
- * https://github.com/isnot/hexo-tag-google-photos-album.git
- * Copyright (c) 2019 isnot (aka ISHIDA Naoto)
+ * https://github.com/isnot/hexo-tag-google-photos-album
+ * Copyright (c) 2019-2020 isnot (aka ISHIDA Naoto)
  * Licensed under the MIT license.
  * Syntax:
  * {% googlePhotosAlbum url %}
  **/
 
 'use strict';
-const pathFn = require('path');
-const fs = require('hexo-fs');
 const util = require('hexo-util');
 const got = require('got');
 const ogs = require('open-graph-scraper');
@@ -22,13 +20,13 @@ const factory_defaults = {
   rel: 'noopener',
   className: 'google-photos-album-area',
   enableDefaultStyle: true,
-  defaultStyle: 'google_photos_album.css',
+  defaultStyle: '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-tag-google-photos-album@1.2.0/css/google_photos_album.css" integrity="sha256-+fmg1peSAbhT32GtVA2D9f1zAjN3v6lX+9Y14jKmYBs=" crossorigin="anonymous">',
   largeSizeThreshold: 768,
   largeSize: '=s1920-no',
   mediumSize: '=s720-no',
   smallSize: '=w225-no',
   tip_on_top: true,
-  generateAlways: false,
+  generateAlways: true,
   maxPics: 999,
   url: ''
 };
@@ -165,33 +163,11 @@ async function getImgHtml(images, options) {
   }
 }
 
-async function copyCss() {
-  const config = margeConfig(hexo.config);
-  const css_filename = pathFn.basename(config.defaultStyle).replace(/[^\w-.]/g, '');
-  const dest = pathFn.join(
-    hexo.public_dir,
-    'css',
-    `${pathFn.basename(css_filename, pathFn.extname(css_filename))}.css`
-  );
-  const src = pathFn.join(
-    hexo.plugin_dir,
-    'hexo-tag-google-photos-album/css',
-    css_filename
-  );
-
-  logger.debug(`google-photos-album: copyCss ${css_filename}`);
-  fs.copyFile(src, dest).then(_ => {
-    logger.debug(`google-photos-album: copy done. ${src} => ${dest}`);
-  }).catch(e => {
-    throw new Error(`google-photos-album: file error. ${e}`);
-  });
-}
-
 // Tag Plugin
 let post_item_counter = 0;
-const config = margeConfig(hexo.config);
 hexo.extend.tag.register('googlePhotosAlbum', args => {
   logger.debug('google-photos-album: loaded');
+  const config = margeConfig(hexo.config);
   if (!Array.isArray(args)) { return; }
   logger.log('google-photos-album: start ', args[0]);
   if (!config.generateAlways && isDev()) { return; }
@@ -211,16 +187,13 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
 });
 
 // Inject Style/Script
-hexo.extend.injector.register('body_end', front.scriptHtml(config), 'default');
-if (config.enableDefaultStyle) {
-  hexo.extend.injector.register('head_end', `<link crossorigin="anonymous" media="screen" rel="stylesheet" href="/css/${pathFn.basename(config.defaultStyle)}" />`, 'default');
-}
-
-// Copy file
-hexo.extend.filter.register('before_exit', _ => {
+if (hasProperty(hexo.extend, 'injector')) {
+  const config = margeConfig(hexo.config);
+  hexo.extend.injector.register('body_end', front.scriptHtml(config), 'default');
   if (config.enableDefaultStyle) {
-    copyCss().catch(e => {
-      throw new Error(`google-photos-album: miss css. ${e}`);
-    });
+    hexo.extend.injector.register('head_end', config.defaultStyle, 'default');
   }
-});
+} else {
+  logger.warn('google-photos-album: Hexo version 5.0 or later is highly recommended. https://hexo.io/news/2020/07/29/hexo-5-released/');
+  logger.warn('google-photos-album: No scripts/styles are injected. Setup its manually in your theme if you needed.');
+}
