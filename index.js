@@ -11,6 +11,7 @@
 const pathFn = require('path');
 const fs = require('hexo-fs');
 const util = require('hexo-util');
+const got = require('got');
 const ogs = require('open-graph-scraper');
 const front = require('./front-end');
 // const { inspect } = require('util');
@@ -67,20 +68,21 @@ function margeConfig(config_yml) {
 }
 
 async function getTagHtml(options, counter) {
-  const data = await ogs(options).catch(error => {
-    throw new Error('google-photos-album: I can not get contents or Open Graph metadata. ' + JSON.stringify(error));
+  const { body: html } = await got(options.url).catch(e => {
+    throw new Error('google-photos-album: request failure. ' + JSON.stringify(e));
   });
-  const { error, result, response } = data;
-  logger.log('error:', error); // This is returns true or false. True if there was a error. The error it self is inside the results object.
-  logger.log('result:', result); // This contains all of the Open Graph results
-  logger.log('response:', response); // This contains the HTML of page
-  const og = result;
-  const html = response;
+  const { error, result: og } = await ogs({html}).catch(e => {
+    throw new Error('google-photos-album: I can not get contents or Open Graph metadata. ' + JSON.stringify(e));
+  });
+  logger.debug('google-photos-album: ogs result:', Object.keys(og));
 
-  logger.info('google-photos-album: got Open Graph metadata from target. ', og);
-  if (typeof og !== 'object' || og === null) {
-    throw new Error('google-photos-album: missing Open Graph metadata.');
+  if (error) {
+    throw new Error(`google-photos-album: retrieving metadata failure. ` + JSON.stringify([options, og]));
   }
+  if (typeof og !== 'object' || og === null) {
+    throw new Error('google-photos-album: missing Open Graph metadata.' + JSON.stringify([options, og]));
+  }
+  logger.debug('google-photos-album: got Open Graph metadata from target. ', og);
 
   if (!hasProperty(og, 'ogUrl') || og.ogUrl.indexOf('photos.google.com/share/') === -1) {
     logger.info('google-photos-album: It seems no urls for Google Photos.');
@@ -102,7 +104,7 @@ async function getTagHtml(options, counter) {
   const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title, false);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
-    throw new Error('google-photos-album: failure on format html.');
+    throw new Error('google-photos-album: failure on format html.' + JSON.stringify(e));
   });
   const contents = util.htmlTag('div', { class: options.className, id: `${options.className}${counter}` }, metadatas + images_html, false);
   return await contents;
