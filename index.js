@@ -169,7 +169,6 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   logger.debug('google-photos-album: loaded');
   const config = margeConfig(hexo.config);
   if (!Array.isArray(args)) { return; }
-  logger.log('google-photos-album: start ', args[0]);
   if (!config.generateAlways && isDev()) { return; }
 
   // debugger;
