@@ -64,18 +64,18 @@ function margeConfig(config_yml) {
 
 async function getTagHtml(options, counter) {
   const { body: html } = await got(options.url).catch(e => {
-    throw new Error('google-photos-album: request failure. ' + JSON.stringify(e));
+    throw new Error(`google-photos-album: request failure. ${JSON.stringify(e)}`);
   });
   const { error, result: og } = await ogs({html}).catch(e => {
-    throw new Error('google-photos-album: I can not get contents or Open Graph metadata. ' + JSON.stringify(e));
+    throw new Error(`google-photos-album: I can not get contents or Open Graph metadata. ${JSON.stringify(e)}`);
   });
   logger.debug('google-photos-album: ogs result:', Object.keys(og));
 
   if (error) {
-    throw new Error(`google-photos-album: retrieving metadata failure. ` + JSON.stringify([options, og]));
+    throw new Error(`google-photos-album: retrieving metadata failure. ${JSON.stringify([options, og])}`);
   }
   if (typeof og !== 'object' || og === null) {
-    throw new Error('google-photos-album: missing Open Graph metadata.' + JSON.stringify([options, og]));
+    throw new Error(`google-photos-album: missing Open Graph metadata. ${JSON.stringify([options, og])}`);
   }
   logger.debug('google-photos-album: got Open Graph metadata from target. ', og);
 
@@ -86,7 +86,7 @@ async function getTagHtml(options, counter) {
   const url = og.ogUrl;
 
   const image_urls = await getImageUrls(html, options.maxPics).catch(e => {
-    throw new Error('google-photos-album: found no images.' + e);
+    throw new Error(`google-photos-album: found no images. ${e}`);
   });
   logger.log(`google-photos-album: found ${image_urls.length} images.`);
 
@@ -99,7 +99,7 @@ async function getTagHtml(options, counter) {
   const cover_title = getCoverTitleHtml(og, url, options) || '';
   const metadatas = util.htmlTag('div', { class: 'metadatas' }, cover_image + cover_title, false);
   const images_html = await getImgHtml(image_urls, options).catch(e => {
-    throw new Error('google-photos-album: failure on format html.' + JSON.stringify(e));
+    throw new Error(`google-photos-album: failure on format html. ${JSON.stringify(e)}`);
   });
   const contents = util.htmlTag('div', { class: options.className, id: `${options.className}${counter}` }, metadatas + images_html, false);
   return await contents;
@@ -129,7 +129,7 @@ function getCoverImageHtml(og, single_image_url, options) {
     image_html = util.htmlTag('img', { src: util.stripHTML(og.ogImage.url), class: class_name }, '', true);
   }
   if (single_image_url) {
-    return util.htmlTag('a', { href: single_image_url + options.mediumSize + '?authuser=0', class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
+    return util.htmlTag('a', { href: `${single_image_url}${options.mediumSize}?authuser=0`, class: 'google-photos-album-image gallery-item', target: options.target, rel: options.rel }, image_html, false);
   }
   return image_html;
 }
@@ -171,7 +171,7 @@ async function copyCss() {
   const dest = pathFn.join(
     hexo.public_dir,
     'css',
-    pathFn.basename(css_filename, pathFn.extname(css_filename)) + '.css'
+    `${pathFn.basename(css_filename, pathFn.extname(css_filename))}.css`
   );
   const src = pathFn.join(
     hexo.plugin_dir,
@@ -183,7 +183,7 @@ async function copyCss() {
   fs.copyFile(src, dest).then(_ => {
     logger.debug(`google-photos-album: copy done. ${src} => ${dest}`);
   }).catch(e => {
-    throw new Error('google-photos-album: file error. ' + e);
+    throw new Error(`google-photos-album: file error. ${e}`);
   });
 }
 
@@ -204,7 +204,7 @@ hexo.extend.tag.register('googlePhotosAlbum', args => {
   config.url = args[0];
   post_item_counter++;
   return getTagHtml(config, post_item_counter).catch(e => {
-    throw new Error('google-photos-album: failure.' + e);
+    throw new Error(`google-photos-album: failure. ${e}`);
   });
 }, {
   async: true
@@ -220,7 +220,7 @@ if (config.enableDefaultStyle) {
 hexo.extend.filter.register('before_exit', _ => {
   if (config.enableDefaultStyle) {
     copyCss().catch(e => {
-      throw new Error('google-photos-album: miss css.' + e);
+      throw new Error(`google-photos-album: miss css. ${e}`);
     });
   }
 });
