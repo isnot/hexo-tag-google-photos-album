@@ -30,7 +30,7 @@
     "open-graph-scraper": "^4.5.0"
   },
   "devDependencies": {
-    "eslint": "^7.5.0",
+    "eslint": "^7.6.0",
     "eslint-config-hexo": "^4.1.0"
   }
 }
