@@ -31,13 +31,12 @@ googlePhotosAlbum:
   rel: noopener
   className: google-photos-album-area
   enableDefaultStyle: true
-  defaultStyle: google_photos_album.css
   largeSizeThreshold: 768
   largeSize:  =s1920-no
   mediumSize: =s720-no
   smallSize:  =w225-no
   maxPics: 999
-  generateAlways: false
+  generateAlways: true
 ```
 
 全ての設定項目は、任意です。
@@ -52,13 +51,12 @@ googlePhotosAlbum:
 | rel               | link element's rel property.                | noopener |
 | className         | className for photos and descriptions.        | google-photos-album-area |
 | enableDefaultStyle | if set to false, you may use own styles by your way. | true |
-| defaultStyle      | default style and its filename.               | /css/google\_photos\_album.css |
 | largeSizeThreshold | for responsive                              | 768 |
 | largeSize         | image's size to link                         | =s1920-no |
 | mediumSize        | image's size to link in case of mobile        | =s720-no |
 | smallSize         | thumbnail's size                             | =w225-no |
 | maxPics           | (experimental)limit {Number} of embeded phtos. | 999   |
-| generateAlways     | (experimental)                              | false |
+| generateAlways     | (experimental)                              | true |
 
 ### 書き方
 

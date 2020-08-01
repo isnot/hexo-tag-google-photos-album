@@ -36,7 +36,7 @@ googlePhotosAlbum:
   mediumSize: =s720-no
   smallSize:  =w225-no
   maxPics: 999
-  generateAlways: false
+  generateAlways: true
 ```
 
 All params are optional.
@@ -49,13 +49,12 @@ You can use this plugin with no config.
 | rel               | link element's rel property.                | noopener |
 | className         | className for photos and descriptions.        | google-photos-album-area |
 | enableDefaultStyle | if set to false, you may use own styles by your way. | true |
-| defaultStyle      | default style and its filename.               | /css/google\_photos\_album.css |
 | largeSizeThreshold | for responsive                              | 768 |
 | largeSize         | image's size to link                         | =s1920-no |
 | mediumSize        | image's size to link in case of mobile        | =s720-no |
 | smallSize         | thumbnail's size                             | =w225-no |
 | maxPics           | (experimental)limit {Number} of embeded phtos. | 999   |
-| generateAlways     | (experimental)                              | false |
+| generateAlways     | (experimental)                              | true |
 
 ### Syntax
 
