@@ -25,12 +25,12 @@
   },
   "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
   "dependencies": {
-    "got": "^11.7.0",
+    "got": "^11.8.2",
     "hexo-util": "^2.4.0",
-    "open-graph-scraper": "^4.6.0"
+    "open-graph-scraper": "^4.8.1"
   },
   "devDependencies": {
-    "eslint": "^7.10.0",
+    "eslint": "^7.24.0",
     "eslint-config-hexo": "^4.1.0"
   }
 }
