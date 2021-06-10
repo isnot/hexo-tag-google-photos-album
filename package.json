@@ -27,10 +27,10 @@
   "dependencies": {
     "got": "^11.8.2",
     "hexo-util": "^2.5.0",
-    "open-graph-scraper": "^4.8.2"
+    "open-graph-scraper": "^4.9.0"
   },
   "devDependencies": {
-    "eslint": "^7.26.0",
+    "eslint": "^7.28.0",
     "eslint-config-hexo": "^4.1.0"
   }
 }
