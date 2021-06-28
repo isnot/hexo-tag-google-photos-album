@@ -1,0 +1,10 @@
+node_modules
+sider.yml
+test
+.eslintignore
+.eslintrc
+.git
+.github
+.gitignore
+.npmignore
+package-lock.json
