@@ -26,11 +26,11 @@
   "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
   "dependencies": {
     "got": "^11.8.3",
-    "hexo-util": "^2.5.0",
+    "hexo-util": "^2.6.0",
     "open-graph-scraper": "^4.11.0"
   },
   "devDependencies": {
-    "eslint": "^8.8.0",
+    "eslint": "^8.11.0",
     "eslint-config-hexo": "^5.0.0"
   }
 }
