@@ -136,7 +136,7 @@ async function getImageUrls(html, max) {
   if (typeof html !== 'string' || html === '') {
     throw new Error('google-photos-album: need html.');
   }
-  const regex = /(?:")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,\[\]\s)/mg;
+  const regex = /(?:,\[")(https:\/\/lh\d\.googleusercontent\.com\/[\w-]+)(?=",\d+,\d+,null,\[\],)/mg;
   const matched = {};
   let myArray;
   while ((myArray = regex.exec(html)) !== null) {
