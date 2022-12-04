@@ -26,7 +26,7 @@
   "homepage": "https://github.com/isnot/hexo-tag-google-photos-album#readme",
   "dependencies": {
     "got": "version-11",
-    "hexo-util": "^2.7.0",
+    "hexo-util": "^3.0.0",
     "open-graph-scraper": "^4.11.1"
   },
   "devDependencies": {
