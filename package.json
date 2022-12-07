@@ -27,7 +27,7 @@
   "dependencies": {
     "got": "version-11",
     "hexo-util": "^2.7.0",
-    "open-graph-scraper": "^4.11.1"
+    "open-graph-scraper": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "^8.23.0",
